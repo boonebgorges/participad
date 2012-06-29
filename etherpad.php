@@ -11,7 +11,7 @@ Author URI: http://www.robert.zimtea.com/
 // Set up details for Etherpad client
 // Temporary
 if ( !defined( 'WP_ETHERPAD_API_ENDPOINT' ) ) {
-	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://localhost:9001' );
+	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://0.0.0.0:9001' );
 }
 
 if ( !defined( 'WP_ETHERPAD_API_KEY' ) ) {
