@@ -2,33 +2,37 @@
 
 class WP_Etherpad {
 
+	public $loggedin_user;
+
 	/**
 	 * @var int ID of the current WP user
 	 *
 	 * @since 1.0
 	 */
-	private $wp_user_id;
+	public $wp_user_id;
 
 	/**
 	 * @var int ID of the EP user corresponding to the current WP user
 	 *
 	 * @since 1.0
 	 */
-	private $ep_user_id;
+	public $ep_user_id;
+
+	public $ep_group_id;
 
 	/**
 	 * @var int ID of the current WP post (empty in the case of new posts)
 	 *
 	 * @since 1.0
 	 */
-	private $wp_post_id;
+	public $wp_post_id;
 
 	/**
 	 * @var int ID of the current EP post (empty in the case of new posts)
 	 *
 	 * @since 1.0
 	 */
-	private $ep_post_id;
+	public $ep_post_id;
 
 	/**
 	 * Use me to bootstrap
@@ -62,6 +66,8 @@ class WP_Etherpad {
 		$this->set_wp_user_id();
 		$this->set_ep_user_id();
 
+		$this->set_ep_user_group_id();
+
 		$this->set_wp_post_id();
 		$this->set_ep_post_id();
 
@@ -88,7 +94,7 @@ class WP_Etherpad {
 	}
 
 	/**
-	 * @todo Should this be done with JS instead?
+	 * @todo Should this be done with JS instead? Otherwise there's no reliable way to get the content of the editor when creating a new EP
 	 */
 	function editor( $editor ) {
 		echo '<style type="text/css">#wp-content-editor-container iframe { width: 100%; height: 400px; }</style>';
@@ -100,7 +106,7 @@ class WP_Etherpad {
 			'useMonospaceFont' => 'false'
 		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_id );
 
-		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . $ep_url . " height=400></iframe>", $editor );
+		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . $ep_url . "' height=400></iframe>", $editor );
 
 		return $editor;
 	}
@@ -126,8 +132,14 @@ class WP_Etherpad {
 	 */
 	public function set_ep_user_id() {
 		if ( ! empty( $this->wp_user_id ) ) {
-			$wpep_user        = new WPEP_User( 'wp_user_id=' . $this->wp_user_id );
-			$this->ep_user_id = $wpep_user->ep_user_id;
+			$this->loggedin_user  = new WPEP_User( 'wp_user_id=' . $this->wp_user_id );
+			$this->ep_user_id = $this->loggedin_user->ep_user_id;
+		}
+	}
+
+	public function set_ep_user_group_id() {
+		if ( ! empty( $this->loggedin_user->ep_user_group_id ) ) {
+			$this->ep_user_group_id = $this->loggedin_user->ep_user_group_id;
 		}
 	}
 
@@ -187,7 +199,9 @@ class WP_Etherpad {
 
 		while ( !$pad_created ) {
 			try {
-				$foo = wpep_client()->createPad( $ep_post_id );
+				$wp_post         = get_post( $this->wp_post_id );
+				$wp_post_content = isset( $wp_post->post_content ) ? $wp_post->post_content : '';
+				$foo             = wpep_client()->createPad( $ep_post_id, $wp_post_content );
 				$pad_created = true;
 			} catch ( Exception $e ) {
 				$ep_post_id = self::generate_random();
