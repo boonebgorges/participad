@@ -87,9 +87,21 @@ class WP_Etherpad {
 		return 'post.php' == substr( $request_uri, strrpos( $request_uri, '/' ) + 1 );
 	}
 
+	/**
+	 * @todo Should this be done with JS instead?
+	 */
 	function editor( $editor ) {
 		echo '<style type="text/css">#wp-content-editor-container iframe { width: 100%; height: 400px; }</style>';
-		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . WP_ETHERPAD_API_ENDPOINT . "/p/" . $this->ep_post_id . "?showControls=true&amp;showChat=false&amp;showLineNumbers=true&amp;useMonospaceFont=false' height=400></iframe>", $editor );
+
+		$ep_url = add_query_arg( array(
+			'showControls' => 'true',
+			'showChat'     => 'false',
+			'showLineNumbers' => 'false',
+			'useMonospaceFont' => 'false'
+		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_id );
+
+		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . $ep_url . " height=400></iframe>", $editor );
+
 		return $editor;
 	}
 
