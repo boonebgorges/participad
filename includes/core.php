@@ -1,17 +1,20 @@
 <?php
 
-/*
- * Will use the Etherpad lite client API found here: https://github.com/TomNomNom/etherpad-lite-client
- * version: not specified heh
- */
-require WP_ETHERPAD_PLUGIN_DIR . 'lib/etherpad-lite-client.php';
-
 class WP_Etherpad {
 
 	/**
-	 * @var Instance of the Etherpad Lite client
+	 * @var int ID of the current WP user
+	 *
+	 * @since 1.0
 	 */
-	private $ep;
+	private $wp_user_id;
+
+	/**
+	 * @var int ID of the EP user corresponding to the current WP user
+	 *
+	 * @since 1.0
+	 */
+	private $ep_user_id;
 
 	/**
 	 * @var int ID of the current WP post (empty in the case of new posts)
@@ -36,7 +39,7 @@ class WP_Etherpad {
 		static $instance = false;
 
 		if ( empty( $instance ) ) {
-			$instance = new WP_Etherpad;
+			$instance = new WP_Etherpad();
 		}
 
 		return $instance;
@@ -48,14 +51,16 @@ class WP_Etherpad {
 	 * @since 1.0
 	 */
 	function __construct(){
+		require WP_ETHERPAD_PLUGIN_DIR . 'includes/functions.php';
+		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-user.php';
+		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-client.php';
+
 		if ( !$this->load_on_page() ) {
 			return;
 		}
 
-		$this->ep = new EtherpadLiteClient(
-			WP_ETHERPAD_API_KEY,
-			WP_ETHERPAD_API_ENDPOINT
-		);
+		$this->set_wp_user_id();
+		$this->set_ep_user_id();
 
 		$this->set_wp_post_id();
 		$this->set_ep_post_id();
@@ -86,6 +91,32 @@ class WP_Etherpad {
 		echo '<style type="text/css">#wp-content-editor-container iframe { width: 100%; height: 400px; }</style>';
 		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . WP_ETHERPAD_API_ENDPOINT . "/p/" . $this->ep_post_id . "?showControls=true&amp;showChat=false&amp;showLineNumbers=true&amp;useMonospaceFont=false' height=400></iframe>", $editor );
 		return $editor;
+	}
+
+	/**
+	 * Set the current user WP user id property
+	 *
+	 * @since 1.0
+	 * @param bool|int $user_id If false, falls back on logged in user
+	 */
+	public function set_wp_user_id( $wp_user_id = false ) {
+		if ( false === $wp_user_id ) {
+			$wp_user_id = get_current_user_id();
+		}
+
+		$this->wp_user_id = (int) $wp_user_id;
+	}
+
+	/**
+	 * Get the EP user id for a given WP user ID
+	 *
+	 * @since 1.0
+	 */
+	public function set_ep_user_id() {
+		if ( ! empty( $this->wp_user_id ) ) {
+			$wpep_user        = new WPEP_User( 'wp_user_id=' . $this->wp_user_id );
+			$this->ep_user_id = $wpep_user->ep_user_id;
+		}
 	}
 
 	/**
@@ -144,7 +175,7 @@ class WP_Etherpad {
 
 		while ( !$pad_created ) {
 			try {
-				$foo = $this->ep->createPad( $ep_post_id );
+				$foo = wpep_client()->createPad( $ep_post_id );
 				$pad_created = true;
 			} catch ( Exception $e ) {
 				$ep_post_id = self::generate_random();

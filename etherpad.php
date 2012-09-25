@@ -2,20 +2,20 @@
 /*
 Plugin Name: EtherPad For Wordpress
 Plugin URI: http://etherpad.org
-Description: Replaces the default Wordpress editor with <a href="http://etherpad.org/"> Etherpad</a>. Allowing authors to colaborate on the same post.
+Description: Enable real time collaboration on WordPress content by integrating with an Etherpad Lite installation
 Version: 0.1.1
-Author: Robert Zimtea
-Author URI: http://www.robert.zimtea.com/
+Author: Boone B Gorges
+Author URI: http://boone.gorg.es
 */
 
 // Set up details for Etherpad client
 // Temporary
 if ( !defined( 'WP_ETHERPAD_API_ENDPOINT' ) ) {
-	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://0.0.0.0:9001' );
+	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://localhost:9001' );
 }
 
 if ( !defined( 'WP_ETHERPAD_API_KEY' ) ) {
-	define( 'WP_ETHERPAD_API_KEY', 'BOGtgfKx4b9daA9ahFyh9siLL1LDk06S' );
+	define( 'WP_ETHERPAD_API_KEY', 'URAohyQdX6v7veTGM3Gw5sKUEow8zb2C' );
 }
 
 // @todo plugin_dir() sucks

@@ -1,15 +1,15 @@
 # Etherpad for Wordpress  
 ---------------------------------
 
-Contributors: waiting
+Contributors: boonebgorges
 
-Tags: etherpad, live, colaboration, lite
+Tags: etherpad, etherpad lite, live, colaboration, lite
 
-Tested up to: __3.2__
+Tested up to: __3.5__
 
 Stable tag: coming soon
 
-Requires at least: __3.*__
+Requires at least: __3.0__
 
 
 ### Description
