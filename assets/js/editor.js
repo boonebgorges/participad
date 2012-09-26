@@ -13,6 +13,10 @@ jQuery(document).ready(function($){
 	var ed_cont = $('#wp-content-editor-container');
 	$(ed_cont).children().remove();
 	$(ed_cont).append('<iframe src="' + WPEP_Editor.url + '"></iframe>');
+
+	if ( WPEP_Editor.dummy_post_ID ) {
+		$(ed_cont).after('<input type="hidden" name="wpep_dummy_post_ID" value="' + WPEP_Editor.dummy_post_ID + '">');
+	}
 },(jQuery));
 
 /**

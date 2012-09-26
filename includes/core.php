@@ -40,6 +40,13 @@ class WP_Etherpad {
 	public $ep_post_group_id;
 
 	/**
+	 * @var The strings that will be passed to a javascript object
+	 *
+	 * @since 1.0
+	 */
+	public $localize_script = array();
+
+	/**
 	 * Use me to bootstrap
 	 *
 	 * @since 1.0
@@ -92,6 +99,7 @@ class WP_Etherpad {
 			add_action( 'get_post_metadata', array( $this, 'prevent_check_edit_lock' ), 10, 4 );
 			add_action( 'admin_enqueue_scripts', array( $this, 'disable_autosave' ) );
 			add_filter( 'wp_insert_post_data', array( $this, 'sync_etherpad_content_to_wp' ), 10, 2 );
+			add_filter( 'wp_insert_post', array( $this, 'catch_dummy_post' ), 10, 2 );
 		}
 
 	//	add_action( 'the_editor', array( &$this, 'editor' ), 1 );
@@ -113,7 +121,14 @@ class WP_Etherpad {
 			$request_uri = substr( $request_uri, 0, $qpos );
 		}
 
-		return 'post.php' == substr( $request_uri, strrpos( $request_uri, '/' ) + 1 );
+		$retval = false;
+		$filename = substr( $request_uri, strrpos( $request_uri, '/' ) + 1 );
+
+		if ( 'post.php' == $filename || 'post-new.php' == $filename ) {
+			$retval = true;
+		}
+
+		return $retval;
 	}
 
 	function enqueue_scripts() {
@@ -127,9 +142,8 @@ class WP_Etherpad {
 			'useMonospaceFont' => 'false',
 		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
 
-		wp_localize_script( 'wpep_editor', 'WPEP_Editor', array(
-			'url' => $ep_url,
-		) );
+		$this->localize_script['url'] = $ep_url;
+		wp_localize_script( 'wpep_editor', 'WPEP_Editor', $this->localize_script );
 	}
 
 	/**
@@ -200,10 +214,28 @@ class WP_Etherpad {
 
 		if ( isset( $_GET['post'] ) ) {
 			$wp_post_id = $_GET['post'];
-		} else if ( $_POST['post_ID'] ) {        // saving post
+		} else if ( isset( $_POST['post_ID'] ) ) {        // saving post
 			$wp_post_id = $_POST['post_ID'];
 		} else if ( !empty( $post->ID ) ) {
 			$wp_post_id = $post->ID;
+		}
+
+		// If we still have no post ID, we're probably in the post
+		// creation process. We have to get weird.
+		// 1) Create a dummy post for use throughout the process
+		// 2) Dynamically add a field to the post creation page that
+		//    contains the id of the dummy post
+		// 3) When the post is finally created, hook in, look for the
+		//    dummy post data, copy it to the new post, and delete the
+		//    dummy
+		if ( ! $wp_post_id ) {
+			$wp_post_id = wp_insert_post( array(
+				'post_title'   => 'WPEP_Dummy_Post',
+				'post_content' => '',
+				'post_status'  => 'auto-draft'
+			) );
+
+			$this->localize_script['dummy_post_ID'] = $wp_post_id;
 		}
 
 		$this->wp_post_id = (int) $wp_post_id;
@@ -245,7 +277,7 @@ class WP_Etherpad {
 		$this->ep_session_id = get_user_meta( $this->wp_user_id, $session_key, true );
 
 		if ( empty( $this->ep_session_id ) ) {
-			$session_id = self::create_ep_group_session( $this->ep_post_group_id, $this->ep_user_id );
+			$session_id = WPEP_Post::create_ep_group_session( $this->ep_post_group_id, $this->ep_user_id );
 
 			if ( ! is_wp_error( $session_id ) ) {
 				$this->ep_session_id = $session_id;
@@ -298,11 +330,33 @@ class WP_Etherpad {
 	 */
 	public function sync_etherpad_content_to_wp( $postdata ) {
 		try {
-			$text = wpep_client()->getText( $this->ep_post_id_concat );
+			// We have to concatenaty the getText source
+			// differently depending on whether this is a new or
+			// existing post
+			if ( isset( $_POST['wpep_dummy_post_ID'] ) ) {
+				$post_id = (int) $_POST['wpep_dummy_post_ID'];
+				$ep_post_id = get_post_meta( $post_id, 'ep_post_group_id', true ) . '$' . get_post_meta( $post_id, 'ep_post_id', true );
+			} else {
+				$ep_post_id = $this->ep_post_id_concat;
+			}
+
+			$text = wpep_client()->getText( $ep_post_id );
 			$postdata['post_content'] = $text->text;
 		} catch ( Exception $e ) {}
 
 		return $postdata;
+	}
+
+	function catch_dummy_post( $post_ID, $post ) {
+		if ( isset( $_POST['wpep_dummy_post_ID'] ) ) {
+			$dummy_post = get_post( $_POST['wpep_dummy_post_ID'] );
+			update_post_meta( $post_ID, 'ep_post_id', get_post_meta( $dummy_post->ID, 'ep_post_id', true ) );
+			update_post_meta( $post_ID, 'ep_post_group_id', get_post_meta( $dummy_post->ID, 'ep_post_group_id', true ) );
+
+			$dummy_session_key = 'ep_group_session_id-post_' . $dummy_post->ID;
+			$post_session_key = 'ep_group_session_id-post_' . $post_ID;
+			update_user_meta( $this->wp_user_id, $post_session_key, get_user_meta( $this->wp_user_id, $dummy_session_key, true ) );
+		}
 	}
 }
 

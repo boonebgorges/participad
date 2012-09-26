@@ -106,9 +106,10 @@ class WPEP_Post {
 	/**
 	 * Gets a random ID. Hashed and salted so it can't be easily reverse engineered
 	 */
-	public static function generate_random() {
+	public static function generate_random_name() {
 		return wp_hash( uniqid() );
 	}
+
 	/**
 	 * Generates a unique EP post id
 	 *
@@ -121,7 +122,7 @@ class WPEP_Post {
 		if ( ! $this->wp_post_id || ! $this->ep_post_group_id ) {
 			return;
 		}
-}
+	}
 
 
 	/**
