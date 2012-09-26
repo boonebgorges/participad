@@ -238,8 +238,11 @@ class WP_Etherpad {
 			if ( ! is_wp_error( $session_id ) ) {
 				$this->ep_session_id = $session_id;
 				update_user_meta( $this->wp_user_id, $session_key, $this->ep_session_id );
-				setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60 ), "/" );
 			}
+		}
+
+		if ( ! empty( $this->ep_session_id ) ) {
+			setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60 ), "/" );
 		}
 	}
 
