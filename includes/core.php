@@ -32,6 +32,11 @@ class WP_Etherpad {
 	 */
 	public $ep_post_id;
 
+	/**
+	 * @var int ID of the current EP post group (empty in the case of new posts)
+	 *
+	 * @since 1.0
+	 */
 	public $ep_post_group_id;
 
 	/**
@@ -64,6 +69,8 @@ class WP_Etherpad {
 			return;
 		}
 
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
 		/**
 		 * Top-level overview:
 		 * 1) Figure out the current WP user
@@ -87,7 +94,7 @@ class WP_Etherpad {
 			add_filter( 'wp_insert_post_data', array( $this, 'sync_etherpad_content_to_wp' ), 10, 2 );
 		}
 
-		add_action( 'the_editor', array( &$this, 'editor' ), 1 );
+	//	add_action( 'the_editor', array( &$this, 'editor' ), 1 );
 	}
 
 	/**
@@ -109,8 +116,24 @@ class WP_Etherpad {
 		return 'post.php' == substr( $request_uri, strrpos( $request_uri, '/' ) + 1 );
 	}
 
+	function enqueue_scripts() {
+		wp_enqueue_style( 'wpep_editor', WP_PLUGIN_URL . '/etherpad-wordpress/assets/css/editor.css' );
+		wp_enqueue_script( 'wpep_editor', WP_PLUGIN_URL . '/etherpad-wordpress/assets/js/editor.js', array( 'jquery', 'editor' ) );
+
+		$ep_url = add_query_arg( array(
+			'showControls' => 'true',
+			'showChat'     => 'false',
+			'showLineNumbers' => 'false',
+			'useMonospaceFont' => 'false',
+		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
+
+		wp_localize_script( 'wpep_editor', 'WPEP_Editor', array(
+			'url' => $ep_url,
+		) );
+	}
+
 	/**
-	 * @todo Should this be done with JS instead? Otherwise there's no reliable way to get the content of the editor when creating a new EP
+	 * @todo Not currently used. I'm swapping it in with Javascript
 	 */
 	function editor( $editor ) {
 		static $done_editor;
@@ -130,7 +153,9 @@ class WP_Etherpad {
 			'useMonospaceFont' => 'false',
 		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
 
-		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . $ep_url . "' height=400></iframe>", $editor );
+		echo '<iframe src="' . $ep_url . '" height=400></iframe>';
+		die();
+//		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . $ep_url . "' height=400></iframe>", $editor );
 
 		$done_editor = 1;
 
