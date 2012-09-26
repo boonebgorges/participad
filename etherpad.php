@@ -11,11 +11,11 @@ Author URI: http://boone.gorg.es
 // Set up details for Etherpad client
 // Temporary
 if ( !defined( 'WP_ETHERPAD_API_ENDPOINT' ) ) {
-	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://localhost:9001' );
+	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://hardg.com:9001' );
 }
 
 if ( !defined( 'WP_ETHERPAD_API_KEY' ) ) {
-	define( 'WP_ETHERPAD_API_KEY', 'URAohyQdX6v7veTGM3Gw5sKUEow8zb2C' );
+	define( 'WP_ETHERPAD_API_KEY', 'AQgFymGt5YxSXwt7KSpEQu6ntwGKX9UE' );
 }
 
 // @todo plugin_dir() sucks

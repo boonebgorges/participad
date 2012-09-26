@@ -9,7 +9,6 @@
 class WPEP_User {
 	var $wp_user_id;
 	var $ep_user_id;
-	var $ep_user_group_id;
 
 	public function __construct( $args = array() ) {
 		$defaults = array(
@@ -25,10 +24,6 @@ class WPEP_User {
 		} else if ( $r['ep_user_id'] ) {
 			$this->ep_user_id = $r['ep_user_id'];
 			$this->setup_userdata_from_ep_user_id();
-		}
-
-		if ( $this->ep_user_id ) {
-			$this->setup_user_group_id();
 		}
 	}
 
@@ -82,38 +77,11 @@ class WPEP_User {
 				$ep_user_id = $ep_user->authorID;
 				update_user_meta( $wp_user_id, 'wpep_ep_user_id', $ep_user_id );
 			} catch ( Exception $e ) {
-				return WP_Error( 'create_ep_user', __( 'Could not create the Etherpad Lite user.', 'wpep' ) );
+				return new WP_Error( 'create_ep_user', __( 'Could not create the Etherpad Lite user.', 'wpep' ) );
 			}
 		}
 
 		return $ep_user_id;
 	}
 
-	/**
-	 * Given a WP user ID, create a new EP user group
-	 *
-	 * @param int $wp_user_id
-	 * @return string $ep_user_group_id
-	 */
-	public static function create_ep_user_group( $wp_user_id ) {
-		$ep_user_group_id = '';
-
-		// Using the 'user_x' format for group mappers for two reasons:
-		// 1) It's a convenience to show that each user has his own EP
-		//    group
-		// 2) We use a 'user_' prefix in anticipation of having other
-		//    kinds of group mappers (eg BuddyPress groups)
-		$group_mapper = 'user_' . $wp_user_id;
-
-		$ep_user_group = wpep_client()->createGroupIfNotExistsFor( $group_mapper );
-
-		try {
-			$ep_user_group_id = $ep_user_group->groupID;
-			update_user_meta( $wp_user_id, 'wpep_ep_user_group_id', $ep_user_group_id );
-		} catch ( Exception $e ) {
-			return WP_Error( 'create_ep_user', __( 'Could not create the Etherpad Lite user group.', 'wpep' ) );
-		}
-
-		return $ep_user_group_id;
-	}
 }

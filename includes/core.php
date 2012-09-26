@@ -18,8 +18,6 @@ class WP_Etherpad {
 	 */
 	public $ep_user_id;
 
-	public $ep_group_id;
-
 	/**
 	 * @var int ID of the current WP post (empty in the case of new posts)
 	 *
@@ -33,6 +31,8 @@ class WP_Etherpad {
 	 * @since 1.0
 	 */
 	public $ep_post_id;
+
+	public $ep_post_group_id;
 
 	/**
 	 * Use me to bootstrap
@@ -63,15 +63,23 @@ class WP_Etherpad {
 			return;
 		}
 
+		/**
+		 * Top-level overview:
+		 * 1) Figure out the current WP user
+		 * 2) Translate that into an EP user
+		 * 3) Figure out the current WP post ID
+		 * 4) Make sure we've got an EP group corresponding to the WP post
+		 * 5) Based on the EP user and group IDs, create a session
+		 * 6) Attempt connecting to the EP post with the session
+		 */
 		$this->set_wp_user_id();
 		$this->set_ep_user_id();
-
-		$this->set_ep_user_group_id();
-
 		$this->set_wp_post_id();
+		$this->set_ep_post_group_id();
+		$this->create_session();
 		$this->set_ep_post_id();
 
-		add_action('the_editor', array( &$this, 'editor' ));
+		add_action( 'the_editor', array( &$this, 'editor' ) );
 	}
 
 	/**
@@ -137,12 +145,6 @@ class WP_Etherpad {
 		}
 	}
 
-	public function set_ep_user_group_id() {
-		if ( ! empty( $this->loggedin_user->ep_user_group_id ) ) {
-			$this->ep_user_group_id = $this->loggedin_user->ep_user_group_id;
-		}
-	}
-
 	/**
 	 * Will set the current post id if action == edit
 	 */
@@ -186,6 +188,50 @@ class WP_Etherpad {
 	}
 
 	/**
+	 * Get the post group id
+	 *
+	 * Etherpad Lite's 'group' model does not map well onto WP's
+	 * approximation of ACL. So we create an EP group for each individual
+	 * post, and manage sessions dynamically
+	 */
+	public function set_ep_post_group_id() {
+		if ( ! empty( $this->wp_post_id ) ) {
+			$this->ep_post_group_id = get_post_meta( $this->wp_post_id, 'ep_post_group_id', true );
+
+			if ( ! $this->ep_post_group_id ) {
+				$post_group_id = self::create_ep_group( $this->wp_post_id, 'post' );
+
+				if ( ! is_wp_error( $post_group_id ) ) {
+					$this->ep_post_group_id = $post_group_id;
+					update_user_meta( $this->wp_post_id, 'ep_post_group_id', $this->ep_post_group_id );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get the session between the logged in user and his user group
+	 *
+	 * Create it if it doesn't exist
+	 */
+	public function create_session() {
+		// Sessions are user-post specific
+		$session_key = 'ep_group_session_id-post_' . $this->wp_post_id;
+
+		$this->ep_session_id = get_user_meta( $this->wp_user_id, $session_key, true );
+
+		if (  $this->ep_session_id ) {
+			$session_id = self::create_ep_group_session( $this->ep_post_group_id, $this->ep_user_id );
+
+			if ( ! is_wp_error( $session_id ) ) {
+				$this->ep_session_id = $session_id;
+				update_user_meta( $this->wp_user_id, $session_key, $this->ep_session_id );
+				setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60 ), "/", '.hardg.com' );
+			}
+		}
+	}
+
+	/**
 	 * Generates a unique EP post id
 	 *
 	 * Uses a random number generator to create an ID, then checks it against EP to see if a
@@ -201,10 +247,10 @@ class WP_Etherpad {
 			try {
 				$wp_post         = get_post( $this->wp_post_id );
 				$wp_post_content = isset( $wp_post->post_content ) ? $wp_post->post_content : '';
-				$foo             = wpep_client()->createPad( $ep_post_id, $wp_post_content );
-				$pad_created = true;
+				$foo             = wpep_client()->createGroupPad( $this->ep_post_group_id, $ep_post_id, $wp_post_content );
+				$pad_created     = true;
 			} catch ( Exception $e ) {
-				$ep_post_id = self::generate_random();
+				$ep_post_id      = self::generate_random();
 			}
 		}
 
@@ -218,6 +264,48 @@ class WP_Etherpad {
 		return wp_hash( uniqid() );
 	}
 
+	/**
+	 * Create an EP group
+	 *
+	 * We use a mapper_type prefix to allow for future iterations of this
+	 * plugin where there are different kinds of mappers than 'type' (such
+	 * as BuddyPress groups)
+	 *
+	 * @param int $mapper_id The numeric ID of the mapped object (eg post)
+	 * @param string $mapper_type Eg 'post'
+	 * @return string|object The group id on success, or a WP_Error object
+	 *   on failure
+	 */
+	public static function create_ep_group( $mapper_id, $mapper_type ) {
+		$group_mapper = $mapper_type . '_' . $mapper_id;
+
+		try {
+			$ep_post_group = wpep_client()->createGroupIfNotExistsFor( $group_mapper );
+			return $ep_post_group->groupID;
+		} catch ( Exception $e ) {
+			return new WP_Error( 'create_ep_post_group', __( 'Could not create the Etherpad Lite group.', 'wpep' ) );
+		}
+	}
+
+	/**
+	 * Create an EP group session
+	 *
+	 * @param string Etherpad group id
+	 * @param string Etherpad user id
+	 * @return string|object The session id on success, or a WP_Error
+	 *   object on failure
+	 */
+	public static function create_ep_group_session( $ep_group_id, $ep_user_id ) {
+
+		try {
+			// @todo Do we need shorter expirations?
+			$expiration  = time() + ( 60 * 60 * 24 * 365 * 100 );
+			$ep_session  = wpep_client()->createSession( $ep_group_id, $ep_user_id, $expiration );
+			return $ep_session->sessionID;
+		} catch ( Exception $e ) {
+			return new WP_Error( 'create_ep_group_session', __( 'Could not create the Etherpad Lite group.', 'wpep' ) );
+		}
+	}
 
 }
 
