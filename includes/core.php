@@ -242,7 +242,7 @@ class WP_Etherpad {
 		}
 
 		if ( ! empty( $this->ep_session_id ) ) {
-			setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60 ), "/" );
+			setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60*24*365*100 ), "/" );
 		}
 	}
 
