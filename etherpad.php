@@ -11,11 +11,11 @@ Author URI: http://boone.gorg.es
 // Set up details for Etherpad client
 // Temporary
 if ( !defined( 'WP_ETHERPAD_API_ENDPOINT' ) ) {
-	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://hardg.com:9001' );
+	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://boone.cool:9001' );
 }
 
 if ( !defined( 'WP_ETHERPAD_API_KEY' ) ) {
-	define( 'WP_ETHERPAD_API_KEY', 'AQgFymGt5YxSXwt7KSpEQu6ntwGKX9UE' );
+	define( 'WP_ETHERPAD_API_KEY', 'URAohyQdX6v7veTGM3Gw5sKUEow8zb2C' );
 }
 
 // @todo plugin_dir() sucks
@@ -29,8 +29,8 @@ function wp_etherpad_bootstrap() {
 	require WP_ETHERPAD_PLUGIN_DIR . "includes/core.php";
 	WP_Etherpad::init();
 }
-add_action( 'init', 'wp_etherpad_bootstrap' );
-
+add_action( 'plugins_loaded', 'wp_etherpad_bootstrap' );
+//setcookie( "bbgtest", "foo", time() + 60*60, "/" );
 
 /**
  * Adds the etherpad under the Settings in WPAdmin

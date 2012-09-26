@@ -79,7 +79,7 @@ class WP_Etherpad {
 		$this->create_session();
 		$this->set_ep_post_id();
 
-		add_action( 'the_editor', array( &$this, 'editor' ) );
+		add_action( 'the_editor', array( &$this, 'editor' ), 1 );
 	}
 
 	/**
@@ -105,18 +105,30 @@ class WP_Etherpad {
 	 * @todo Should this be done with JS instead? Otherwise there's no reliable way to get the content of the editor when creating a new EP
 	 */
 	function editor( $editor ) {
+		static $done_editor;
+
+		// Can only do one per page for a number of reasons
+		// @todo Revisit
+		if ( ! empty( $done_editor ) ) {
+			return $editor;
+		}
+
 		echo '<style type="text/css">#wp-content-editor-container iframe { width: 100%; height: 400px; }</style>';
 
 		$ep_url = add_query_arg( array(
 			'showControls' => 'true',
 			'showChat'     => 'false',
 			'showLineNumbers' => 'false',
-			'useMonospaceFont' => 'false'
-		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_id );
+			'useMonospaceFont' => 'false',
+		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
 
 		$editor = preg_replace( '|<textarea.+?/textarea>|', "<iframe src='" . $ep_url . "' height=400></iframe>", $editor );
 
-		return $editor;
+		$done_editor = 1;
+
+		// We have to bypass the rest of the filters
+		echo $editor;
+		return '';
 	}
 
 	/**
@@ -220,13 +232,13 @@ class WP_Etherpad {
 
 		$this->ep_session_id = get_user_meta( $this->wp_user_id, $session_key, true );
 
-		if (  $this->ep_session_id ) {
+		if ( empty( $this->ep_session_id ) ) {
 			$session_id = self::create_ep_group_session( $this->ep_post_group_id, $this->ep_user_id );
 
 			if ( ! is_wp_error( $session_id ) ) {
 				$this->ep_session_id = $session_id;
 				update_user_meta( $this->wp_user_id, $session_key, $this->ep_session_id );
-				setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60 ), "/", '.hardg.com' );
+				setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60 ), "/" );
 			}
 		}
 	}
@@ -303,7 +315,7 @@ class WP_Etherpad {
 			$ep_session  = wpep_client()->createSession( $ep_group_id, $ep_user_id, $expiration );
 			return $ep_session->sessionID;
 		} catch ( Exception $e ) {
-			return new WP_Error( 'create_ep_group_session', __( 'Could not create the Etherpad Lite group.', 'wpep' ) );
+			return new WP_Error( 'create_ep_group_session', __( 'Could not create the Etherpad Lite session.', 'wpep' ) );
 		}
 	}
 

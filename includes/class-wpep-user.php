@@ -36,7 +36,7 @@ class WPEP_User {
 	 * @todo Need to create the function that goes in the other direction
 	 */
 	protected function setup_userdata_from_wp_user_id() {
-		$this->ep_user_id = get_user_meta( $this->wp_user_id, 'wpep_ep_user_id', true );
+		$this->ep_user_id = get_user_meta( $this->wp_user_id, 'ep_user_id', true );
 
 		if ( ! $this->ep_user_id ) {
 			$this->ep_user_id = self::create_ep_user( $this->wp_user_id );
@@ -47,7 +47,7 @@ class WPEP_User {
 	 * Once we have an EP user id, get the corresponding group id
 	 */
 	protected function setup_user_group_id() {
-		$this->ep_user_group_id = get_user_meta( $this->wp_user_id, 'wpep_ep_user_group_id', true );
+		$this->ep_user_group_id = get_user_meta( $this->wp_user_id, 'ep_user_group_id', true );
 
 		if ( ! $this->ep_user_group_id ) {
 			$this->ep_user_group_id = self::create_ep_user_group( $this->ep_user_id );
@@ -71,17 +71,17 @@ class WPEP_User {
 		$wp_user = new WP_User( $wp_user_id );
 
 		if ( is_a( $wp_user, 'WP_User' ) ) {
-			$ep_user = wpep_client()->createAuthorIfNotExistsFor( $wp_user->ID, $wp_user->display_name );
 
 			try {
+				$ep_user = wpep_client()->createAuthorIfNotExistsFor( $wp_user->ID, $wp_user->display_name );
 				$ep_user_id = $ep_user->authorID;
-				update_user_meta( $wp_user_id, 'wpep_ep_user_id', $ep_user_id );
+				update_user_meta( $wp_user_id, 'ep_user_id', $ep_user_id );
+				return $ep_user_id;
 			} catch ( Exception $e ) {
 				return new WP_Error( 'create_ep_user', __( 'Could not create the Etherpad Lite user.', 'wpep' ) );
 			}
 		}
 
-		return $ep_user_id;
 	}
 
 }
