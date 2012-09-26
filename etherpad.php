@@ -29,8 +29,7 @@ function wp_etherpad_bootstrap() {
 	require WP_ETHERPAD_PLUGIN_DIR . "includes/core.php";
 	WP_Etherpad::init();
 }
-add_action( 'plugins_loaded', 'wp_etherpad_bootstrap' );
-//setcookie( "bbgtest", "foo", time() + 60*60, "/" );
+add_action( 'init', 'wp_etherpad_bootstrap' );
 
 /**
  * Adds the etherpad under the Settings in WPAdmin

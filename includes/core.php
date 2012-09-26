@@ -57,9 +57,10 @@ class WP_Etherpad {
 	function __construct(){
 		require WP_ETHERPAD_PLUGIN_DIR . 'includes/functions.php';
 		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-user.php';
+		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-post.php';
 		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-client.php';
 
-		if ( !$this->load_on_page() ) {
+		if ( ! $this->load_on_page() ) {
 			return;
 		}
 
@@ -79,6 +80,13 @@ class WP_Etherpad {
 		$this->create_session();
 		$this->set_ep_post_id();
 
+		// Todo: Move this somewhere else?
+		if ( $this->ep_post_id ) {
+			add_action( 'get_post_metadata', array( $this, 'prevent_check_edit_lock' ), 10, 4 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'disable_autosave' ) );
+			add_filter( 'wp_insert_post_data', array( $this, 'sync_etherpad_content_to_wp' ), 10, 2 );
+		}
+
 		add_action( 'the_editor', array( &$this, 'editor' ), 1 );
 	}
 
@@ -87,14 +95,14 @@ class WP_Etherpad {
 	 *
 	 * No need to initialize the API client on every pageload
 	 *
-	 * @todo Implement
+	 * @todo Do a better job of implementing this
 	 *
 	 * @return bool
 	 */
 	function load_on_page() {
 		$request_uri = $_SERVER['REQUEST_URI'];
 		$qpos = strpos( $request_uri, '?' );
-		if ( false !== $request_uri ) {
+		if ( false !== $qpos ) {
 			$request_uri = substr( $request_uri, 0, $qpos );
 		}
 
@@ -167,36 +175,13 @@ class WP_Etherpad {
 
 		if ( isset( $_GET['post'] ) ) {
 			$wp_post_id = $_GET['post'];
+		} else if ( $_POST['post_ID'] ) {        // saving post
+			$wp_post_id = $_POST['post_ID'];
 		} else if ( !empty( $post->ID ) ) {
 			$wp_post_id = $post->ID;
 		}
 
 		$this->wp_post_id = (int) $wp_post_id;
-	}
-
-	/**
-	 * Look up the EP post id for the current WP post. Generate if necessary
-	 */
-	public function set_ep_post_id() {
-		$ep_post_id = 0;
-
-		if ( $this->wp_post_id ) {
-			$ep_post_id = get_post_meta( $this->wp_post_id, 'ep_post_id', true );
-		}
-
-		if ( empty( $ep_post_id ) ) {
-			$ep_post_id = $this->generate_ep_post_id();
-
-			// Save the newly generated EP post id to the existing WP post
-			if ( $this->wp_post_id ) {
-				update_post_meta( $this->wp_post_id, 'ep_post_id', $ep_post_id );
-			} else {
-				// Todo: What do we do when this is an autosave of a newly-created
-				// post? Nothing?
-			}
-		}
-
-		$this->ep_post_id = $ep_post_id;
 	}
 
 	/**
@@ -208,21 +193,23 @@ class WP_Etherpad {
 	 */
 	public function set_ep_post_group_id() {
 		if ( ! empty( $this->wp_post_id ) ) {
-			$this->ep_post_group_id = get_post_meta( $this->wp_post_id, 'ep_post_group_id', true );
-
-			if ( ! $this->ep_post_group_id ) {
-				$post_group_id = self::create_ep_group( $this->wp_post_id, 'post' );
-
-				if ( ! is_wp_error( $post_group_id ) ) {
-					$this->ep_post_group_id = $post_group_id;
-					update_user_meta( $this->wp_post_id, 'ep_post_group_id', $this->ep_post_group_id );
-				}
-			}
+			$this->current_post     = new WPEP_Post( 'wp_post_id=' . $this->wp_post_id );
+			$this->ep_post_group_id = $this->current_post->ep_post_group_id;
 		}
 	}
 
 	/**
-	 * Get the session between the logged in user and his user group
+	 * Look up the EP post id for the current WP post
+	 */
+	public function set_ep_post_id() {
+		if ( ! empty( $this->current_post ) ) {
+			$this->ep_post_id = $this->current_post->ep_post_id;
+			$this->ep_post_id_concat = $this->ep_post_group_id . '$' . $this->ep_post_id;
+		}
+	}
+
+	/**
+	 * Get the session between the logged in user and the current post group
 	 *
 	 * Create it if it doesn't exist
 	 */
@@ -247,81 +234,51 @@ class WP_Etherpad {
 	}
 
 	/**
-	 * Generates a unique EP post id
+	 * Prevents setting WP's _edit_lock when on an Etherpad page
 	 *
-	 * Uses a random number generator to create an ID, then checks it against EP to see if a
-	 * pad exists by that name.
-	 *
-	 * @return str
+	 * Works a little funky because of the filters available in WP.
+	 * Summary:
+	 * 1) Filter get_post_metadata
+	 * 2) If the key is '_edit_lock', and if the $object_id is the
+	 *    current post, return an empty value
+	 * 3) The "empty value" must be cast as an array if $single is false
+	 * 4) When get_metadata() sees the empty string come back, it returns
+	 *    it, thus tricking the checker into thinking that there's no lock
+	 * 5) A side effect is that edit locks can't be set either, because
+	 *    this filter kills the duplicate check in update_metadata()
 	 */
-	public function generate_ep_post_id() {
-		$ep_post_id = self::generate_random();
-		$pad_created = false;
-
-		while ( !$pad_created ) {
-			try {
-				$wp_post         = get_post( $this->wp_post_id );
-				$wp_post_content = isset( $wp_post->post_content ) ? $wp_post->post_content : '';
-				$foo             = wpep_client()->createGroupPad( $this->ep_post_group_id, $ep_post_id, $wp_post_content );
-				$pad_created     = true;
-			} catch ( Exception $e ) {
-				$ep_post_id      = self::generate_random();
-			}
+	public function prevent_check_edit_lock( $retval, $object_id, $meta_key, $single ) {
+		if ( '_edit_lock' == $meta_key && ! empty( $this->wp_post_id ) && $this->wp_post_id == $object_id ) {
+			$retval = $single ? '' : array( '' );
 		}
 
-		return $ep_post_id;
+		return $retval;
 	}
 
 	/**
-	 * Gets a random ID. Hashed and salted so it can't be easily reverse engineered
+	 * Dequeues WP's autosave script, thereby disabling the feature
+	 *
+	 * No need for autosave here
 	 */
-	public static function generate_random() {
-		return wp_hash( uniqid() );
+	public function disable_autosave() {
+		wp_dequeue_script( 'autosave' );
 	}
 
 	/**
-	 * Create an EP group
+	 * On WP post save, look to see whether there's a corresponding EP post,
+	 * and if found, sync the EP content into the WP post
 	 *
-	 * We use a mapper_type prefix to allow for future iterations of this
-	 * plugin where there are different kinds of mappers than 'type' (such
-	 * as BuddyPress groups)
-	 *
-	 * @param int $mapper_id The numeric ID of the mapped object (eg post)
-	 * @param string $mapper_type Eg 'post'
-	 * @return string|object The group id on success, or a WP_Error object
-	 *   on failure
+	 * Note that this will overwrite local modifications.
+	 * @todo Do more conscientious syncing
 	 */
-	public static function create_ep_group( $mapper_id, $mapper_type ) {
-		$group_mapper = $mapper_type . '_' . $mapper_id;
-
+	public function sync_etherpad_content_to_wp( $postdata ) {
 		try {
-			$ep_post_group = wpep_client()->createGroupIfNotExistsFor( $group_mapper );
-			return $ep_post_group->groupID;
-		} catch ( Exception $e ) {
-			return new WP_Error( 'create_ep_post_group', __( 'Could not create the Etherpad Lite group.', 'wpep' ) );
-		}
+			$text = wpep_client()->getText( $this->ep_post_id_concat );
+			$postdata['post_content'] = $text->text;
+		} catch ( Exception $e ) {}
+
+		return $postdata;
 	}
-
-	/**
-	 * Create an EP group session
-	 *
-	 * @param string Etherpad group id
-	 * @param string Etherpad user id
-	 * @return string|object The session id on success, or a WP_Error
-	 *   object on failure
-	 */
-	public static function create_ep_group_session( $ep_group_id, $ep_user_id ) {
-
-		try {
-			// @todo Do we need shorter expirations?
-			$expiration  = time() + ( 60 * 60 * 24 * 365 * 100 );
-			$ep_session  = wpep_client()->createSession( $ep_group_id, $ep_user_id, $expiration );
-			return $ep_session->sessionID;
-		} catch ( Exception $e ) {
-			return new WP_Error( 'create_ep_group_session', __( 'Could not create the Etherpad Lite session.', 'wpep' ) );
-		}
-	}
-
 }
 
 ?>
