@@ -3,43 +3,69 @@
 Plugin Name: EtherPad For Wordpress
 Plugin URI: http://etherpad.org
 Description: Enable real time collaboration on WordPress content by integrating with an Etherpad Lite installation
-Version: 0.1.1
+Version: 1.0-bleeding
 Author: Boone B Gorges
 Author URI: http://boone.gorg.es
 */
 
-// Set up details for Etherpad client
-// Temporary
-if ( !defined( 'WP_ETHERPAD_API_ENDPOINT' ) ) {
-	define( 'WP_ETHERPAD_API_ENDPOINT', 'http://boone.cool:9001' );
+class WPEP {
+	function instance() {
+		static $instance;
+
+		if ( empty( $instance ) ) {
+			$instance = new WPEP;
+		}
+
+		return $instance;
+	}
+
+	function __construct() {
+		$this->setup_constants();
+		$this->includes();
+		$this->do_integration();
+	}
+
+	/**
+	 * Define some constants
+	 *
+	 * These are provided primarily because it's necessary on some setups
+	 * to override WP's stupid plugin_dir_path() etc because of symlinks.
+	 */
+	function setup_constants() {
+		if ( ! defined( 'WPEP_PLUGIN_DIR' ) ) {
+			define( 'WPEP_PLUGIN_DIR', trailingslashit( dirname(__FILE__) ) );
+		}
+
+		if ( ! defined( 'WPEP_PLUGIN_URL' ) ) {
+			define( 'WPEP_PLUGIN_URL', WP_PLUGIN_URL . '/etherpad-wordpress/' );
+		}
+	}
+
+	/**
+	 * Require necessary files
+	 */
+	function includes() {
+		require WPEP_PLUGIN_DIR . 'includes/functions.php';
+		require WPEP_PLUGIN_DIR . 'includes/class-wpep-integration.php';
+		require WPEP_PLUGIN_DIR . 'includes/class-wpep-user.php';
+		require WPEP_PLUGIN_DIR . 'includes/class-wpep-post.php';
+		require WPEP_PLUGIN_DIR . 'includes/class-wpep-client.php';
+
+		if ( is_admin() ) {
+			require WPEP_PLUGIN_DIR . 'includes/admin.php';
+		}
+	}
+
+	function do_integration() {
+		$this->integration = new WPEP_Integration;
+	}
+
 }
-
-if ( !defined( 'WP_ETHERPAD_API_KEY' ) ) {
-	define( 'WP_ETHERPAD_API_KEY', 'URAohyQdX6v7veTGM3Gw5sKUEow8zb2C' );
-}
-
-// @todo plugin_dir() sucks
-define( 'WP_ETHERPAD_PLUGIN_DIR', trailingslashit( dirname(__FILE__) ) );
-
 
 /**
  * Plugin bootstrap
  */
-function wp_etherpad_bootstrap() {
-	require WP_ETHERPAD_PLUGIN_DIR . "includes/core.php";
-	WP_Etherpad::init();
+function wpep_bootstrap() {
+	WPEP::instance();
 }
-add_action( 'init', 'wp_etherpad_bootstrap' );
-
-/**
- * Adds the etherpad under the Settings in WPAdmin
- */
-function etherpad_register_admin_page() {
-	add_submenu_page( 'options-general.php', 'Etherpad', 'Etherpad Settings', 'manage_options', 'my-custom-submenu-page', 'etherpad_admin_page' );
-}
-
-function etherpad_admin_page() {
-  include 'includes/admin_page.php';
-}
-
-?>
+add_action( 'init', 'wpep_bootstrap' );

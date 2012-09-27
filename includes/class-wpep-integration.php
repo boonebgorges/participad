@@ -1,7 +1,18 @@
 <?php
 
-class WP_Etherpad {
+/**
+ * Integration class
+ *
+ * This is responsible for integrating into the WordPress Edit/New Post
+ * Dashboard panels
+ */
+class WPEP_Integration {
 
+	/**
+	 * @var obj A WPEP_User object representing the current user
+	 *
+	 * @since 1.0
+	 */
 	public $loggedin_user;
 
 	/**
@@ -67,10 +78,6 @@ class WP_Etherpad {
 	 * @since 1.0
 	 */
 	function __construct(){
-		require WP_ETHERPAD_PLUGIN_DIR . 'includes/functions.php';
-		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-user.php';
-		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-post.php';
-		require WP_ETHERPAD_PLUGIN_DIR . 'includes/class-wpep-client.php';
 
 		if ( ! $this->load_on_page() ) {
 			return;
@@ -140,7 +147,7 @@ class WP_Etherpad {
 			'showChat'     => 'false',
 			'showLineNumbers' => 'false',
 			'useMonospaceFont' => 'false',
-		), WP_ETHERPAD_API_ENDPOINT . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
+		), wpep_api_endpoint() . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
 
 		$this->localize_script['url'] = $ep_url;
 		wp_localize_script( 'wpep_editor', 'WPEP_Editor', $this->localize_script );
@@ -347,6 +354,10 @@ class WP_Etherpad {
 		return $postdata;
 	}
 
+	/**
+	 * When creating a new post, we need to copy over the metadata from
+	 * the dummy WP post into the actual WP post
+	 */
 	function catch_dummy_post( $post_ID, $post ) {
 		if ( isset( $_POST['wpep_dummy_post_ID'] ) ) {
 			$dummy_post = get_post( $_POST['wpep_dummy_post_ID'] );

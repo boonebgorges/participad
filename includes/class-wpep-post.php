@@ -96,7 +96,7 @@ class WPEP_Post {
 				$ep_post         = wpep_client()->createGroupPad( $ep_post_group_id, $ep_post_id, $wp_post_content );
 				$pad_created     = true;
 			} catch ( Exception $e ) {
-				$ep_post_id      = self::generate_random();
+				$ep_post_id      = self::generate_random_name();
 			}
 		}
 
@@ -134,7 +134,6 @@ class WPEP_Post {
 	 *   object on failure
 	 */
 	public static function create_ep_group_session( $ep_group_id, $ep_user_id ) {
-
 		try {
 			// @todo Do we need shorter expirations?
 			$expiration  = time() + ( 60 * 60 * 24 * 365 * 100 );

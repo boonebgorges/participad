@@ -1,7 +1,7 @@
 <?php
 
 if ( ! class_exists( 'EtherpadLiteClient' ) ) {
-	require WP_ETHERPAD_PLUGIN_DIR . "lib/etherpad-lite-client.php";
+	require WPEP_PLUGIN_DIR . 'lib/etherpad-lite-client.php';
 }
 
 /**
@@ -16,13 +16,13 @@ class WPEP_Client extends EtherpadLiteClient {
 	protected static $instance;
 
 	/**
-	 * @todo Remove references to constants
+	 * Ensures that we've got a singleton
 	 */
 	public static function instance() {
 		if ( empty( self::$instance ) ) {
 			self::$instance = new WPEP_Client(
-				WP_ETHERPAD_API_KEY,
-				WP_ETHERPAD_API_ENDPOINT
+				wpep_api_key(),
+				wpep_api_endpoint()
 			);
 		}
 
