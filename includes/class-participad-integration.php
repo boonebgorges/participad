@@ -144,6 +144,15 @@ abstract class Participad_Integration {
 	}
 
 	/**
+	 * Create a session that gives the current user access to this EP post
+	 */
+	public function create_session() {
+		if ( is_a( $this->loggedin_user, 'Participad_User' ) ) {
+			$this->loggedin_user->create_session( $this->wp_post_id, $this->ep_post_group_id );
+		}
+	}
+
+	/**
 	 * Look up the EP post id for the current WP post
 	 */
 	public function set_ep_post_id() {
@@ -152,7 +161,6 @@ abstract class Participad_Integration {
 			$this->ep_post_id_concat = $this->ep_post_group_id . '$' . $this->ep_post_id;
 		}
 	}
-
 }
 
 ?>
