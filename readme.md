@@ -19,7 +19,7 @@ Collaborate in real time on WordPress content
 
 ## Credits
 
-Participad was originally developed for [THATCamp](http://thatcamp.org}, with the support of the [Roy Rosenzweig Center for History and New Media](http://chnm.gmu.edu).
+Participad was originally developed for [THATCamp](http://thatcamp.org), with the support of the [Roy Rosenzweig Center for History and New Media](http://chnm.gmu.edu).
 
 ## Links
 
