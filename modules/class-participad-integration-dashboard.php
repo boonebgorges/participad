@@ -180,4 +180,13 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 		$this->localize_script['url'] = $ep_url;
 		wp_localize_script( 'participad_editor', 'Participad_Editor', $this->localize_script );
 	}
+
+	//////////////////
+	//  SETTINGS    //
+	//////////////////
+
+	public function settings_panel() {
+
+	}
+
 }

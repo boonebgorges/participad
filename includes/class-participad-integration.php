@@ -82,6 +82,10 @@ abstract class Participad_Integration {
 		$this->set_ep_post_group_id();
 		$this->create_session();
 		$this->set_ep_post_id();
+
+		// Set up the admin panels and save methods
+		add_action( 'participad_admin_page', array( $this, 'admin_page' ) );
+		add_action( 'participad_admin_page_save', array( $this, 'admin_page_save' ) );
 	}
 
 	/**
@@ -161,6 +165,24 @@ abstract class Participad_Integration {
 			$this->ep_post_id_concat = $this->ep_post_group_id . '$' . $this->ep_post_id;
 		}
 	}
+
+	/**
+	 * Markup for the admin page
+	 *
+	 * Create the markup that'll appears on your module's section of the admin page
+	 *
+	 * This method is called automatically at the right time. You just need
+	 * to override it in your class.
+	 */
+	public function admin_page() {}
+
+	/**
+	 * Save changes on your admin page
+	 *
+	 * This method is hooked to participad_admin_page_save. Just catch the
+	 * $_POST global and do what you need to do
+	 */
+	public function admin_page_save() {}
 }
 
 ?>

@@ -67,6 +67,8 @@ function participad_admin_page() {
 		<input type="submit" name="submit" class="button-primary" value="<?php _e( "Save Changes", 'participad' ) ?>" />
 	</div>
 
+	<?php do_action( 'participad_admin_page' ) ?>
+
 	</form>
 	<?php
 }
@@ -100,6 +102,8 @@ function participad_admin_page_save() {
 
 	update_option( 'ep_api_endpoint', $endpoint );
 	update_option( 'ep_api_key', $key );
+
+	do_action( 'participad_admin_page_save' );
 }
 add_action( 'admin_init', 'participad_admin_page_save' );
 
