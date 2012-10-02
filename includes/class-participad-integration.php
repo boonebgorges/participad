@@ -59,6 +59,10 @@ abstract class Participad_Integration {
 	 * @since 1.0
 	 */
 	public function init() {
+		if ( ! participad_is_installed_correctly() ) {
+			return new WP_Error( 'not_installed_correctly', 'Participad is not installed correctly.' );
+		}
+
 		if ( ! $this->load_on_page() ) {
 			return;
 		}

@@ -9,8 +9,8 @@
  */
 function participad_admin_menu() {
 	add_options_page(
-		'Participad',
-		'Participad Settings',
+		__( 'Participad', 'participad' ),
+		__( 'Participad', 'participad' ),
 		'manage_options',
 		'participad',
 		'participad_admin_page'
@@ -104,6 +104,42 @@ function participad_admin_page_save() {
 add_action( 'admin_init', 'participad_admin_page_save' );
 
 /**
+ * Check to see whether Participad is set up correctly, and show a notice
+ *
+ * @since 1.0
+ */
+function participad_setup_admin_notice() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	if ( ! participad_is_installed_correctly() ) {
+		$html  = '<div class="message error">';
+		$html .=   '<p>';
+
+		if ( participad_is_admin_page() ) {
+			if ( ! participad_api_endpoint() ) {
+				$message = __( 'You must provide a valid Etherpad Lite URL.', 'participad' );
+			} else if ( ! participad_api_key() ) {
+				$message = __( 'You must provide a valid Etherpad Lite API key. You can find this key in the <code>APIKEY.txt</code> file in the root of your Etherpad Lite installation.', 'participad' );
+			} else {
+				$message = __( 'We couldn\'t find an Etherpad Lite installation at the URL you provided. Please check the details and try again.', 'participad' );
+			}
+
+			$html .= $message;
+		} else {
+			$html .= sprintf( __( '<strong>Participad is not set up correctly.</strong> Visit the <a href="%s">settings page</a> to learn more.', 'participad' ), participad_admin_url() );
+		}
+
+		$html .=   '</p>';
+		$html .= '</div>';
+
+		echo $html;
+	}
+}
+add_action( 'admin_notices', 'participad_setup_admin_notice', 999 );
+
+/**
  * Returns the URL of the admin page
  *
  * We need this all over the place, so I've thrown it in a function
@@ -114,3 +150,14 @@ function participad_admin_url() {
 	return add_query_arg( 'page', 'participad', admin_url( 'options-general.php' ) );
 }
 
+/**
+ * Is this the Participad admin page?
+ *
+ * @since 1.0
+ * @return bool
+ */
+function participad_is_admin_page() {
+	global $pagenow;
+
+	return 'options-general.php' == $pagenow && isset( $_GET['page'] ) && 'participad' == $_GET['page'];
+}

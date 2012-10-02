@@ -23,6 +23,9 @@ class Participad {
 		$this->setup_constants();
 		$this->includes();
 		$this->load_modules();
+
+		// Plugins should load themselves here
+		do_action( 'participad_init', $this );
 	}
 
 	/**

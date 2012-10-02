@@ -18,7 +18,9 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 	public $localize_script = array();
 
 	function __construct() {
-		$this->init();
+		if ( is_wp_error( $this->init() ) ) {
+			return;
+		}
 
 		// Todo: Move this somewhere else?
 		if ( $this->ep_post_id ) {

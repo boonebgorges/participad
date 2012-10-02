@@ -54,3 +54,23 @@ function participad_api_endpoint() {
 
 	return $api_endpoint;
 }
+
+/**
+ * Is Participad installed correctly?
+ */
+function participad_is_installed_correctly() {
+	$is_installed_correctly = true;
+
+	$api_endpoint = participad_api_endpoint();
+	$api_key      = participad_api_key();
+
+	if ( ! $api_endpoint || ! $api_key ) {
+		$is_installed_correctly = false;
+	}
+
+	if ( ! participad_client()->is_connected() ) {
+		$is_installed_correctly = false;
+	}
+
+	return $is_installed_correctly;
+}
