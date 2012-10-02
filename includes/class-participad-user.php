@@ -53,7 +53,7 @@ class Participad_User {
 	public function create_session( $wp_post_id, $ep_group_id ) {
 		// Sessions are user-post specific
 		$session_key         = 'ep_group_session_id-post_' . $wp_post_id;
-//		$this->ep_session_id = get_user_meta( $this->wp_user_id, $session_key, true );
+		$this->ep_session_id = get_user_meta( $this->wp_user_id, $session_key, true );
 
 		if ( empty( $this->ep_session_id ) ) {
 			$this->ep_session_id = Participad_Post::create_ep_group_session( $ep_group_id, $this->ep_user_id );
