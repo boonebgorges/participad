@@ -1,42 +1,22 @@
-# Etherpad for Wordpress  
+# Participad  
 ---------------------------------
 
 Contributors: boonebgorges
-
 Tags: etherpad, etherpad lite, live, colaboration, lite
-
 Tested up to: __3.5__
-
 Stable tag: coming soon
-
 Requires at least: __3.0__
 
+## Description
 
-### Description
-Collaborate with other authors on the same blog post.
+Collaborate in real time on WordPress content
 
-### Changelog
+## Installation
 
+1. Copy the `participad` directory into the plugins folder of your WP installation
+1. Activate the plugin
+1. Navigate to Settings > Participad and enter the API details for your Etherpad Lite installation
 
-> 0.0.1
-	Project initiated
-
-### Installation
-
-1. Copy the files into your plugins folder …
-
-### Frequently Asked Questions 
-
-1. Does this really work? 
-
-> Will do sometime soon.
-
-### Troubleshooting ###
-
-### Self-Host
-
-Doable but it will require some brain power.
-
-### Links
+## Links
 [ETHERPAD](http://etherpad.org).
 
