@@ -5,66 +5,66 @@
  */
 
 /**
- * Adds the Etherpad settings menu
+ * Adds the Participad settings menu
  */
-function wpep_admin_menu() {
+function participad_admin_menu() {
 	add_options_page(
-		'Etherpad',
-		'Etherpad Settings',
+		'Participad',
+		'Participad Settings',
 		'manage_options',
-		'etherpad',
-		'wpep_admin_page'
+		'participad',
+		'participad_admin_page'
 	);
 }
-add_action( 'admin_menu', 'wpep_admin_menu' );
+add_action( 'admin_menu', 'participad_admin_menu' );
 
 /**
  * Renders the admin panel
  */
-function wpep_admin_page() {
-	$endpoint_is_constant = defined( 'WPEP_API_ENDPOINT' );
-	$key_is_constant      = defined( 'WPEP_API_KEY' );
+function participad_admin_page() {
+	$endpoint_is_constant = defined( 'PARTICIPAD_API_ENDPOINT' );
+	$key_is_constant      = defined( 'PARTICIPAD_API_KEY' );
 
 	?>
 
-	<form action="<?php echo wpep_admin_url() ?>" method="post">
+	<form action="<?php echo participad_admin_url() ?>" method="post">
 
 	<div class="wrap">
-		<h2><?php _e( 'Etherpad', 'wpep' ) ?></h2>
+		<h2><?php _e( 'Participad Settings', 'participad' ) ?></h2>
 
 		<table class="form-table">
 			<tr>
 				<th span="row">
-					<label for="wpep_api_endpoint"><?php _e( 'Etherpad Lite URL', 'wpep' ) ?></label>
+					<label for="participad_api_endpoint"><?php _e( 'Etherpad Lite URL', 'participad' ) ?></label>
 				</th>
 
 				<td>
-					<input <?php if ( $endpoint_is_constant ) : ?>disabled="disabled"<?php endif ?> name="wpep_api_endpoint" value="<?php echo esc_attr( wpep_api_endpoint() ) ?>" />
+					<input <?php if ( $endpoint_is_constant ) : ?>disabled="disabled"<?php endif ?> name="participad_api_endpoint" value="<?php echo esc_attr( participad_api_endpoint() ) ?>" />
 
 					<?php if ( $endpoint_is_constant ) : ?>
-						<p class="description"><?php _e( "<code>WPEP_API_ENDPOINT</code> is defined in <code>wp-config.php</code>.", 'wpep' ) ?></p>
+						<p class="description"><?php _e( "<code>PARTICIPAD_API_ENDPOINT</code> is defined in <code>wp-config.php</code>.", 'participad' ) ?></p>
 					<?php endif ?>
 				</td>
 			</tr>
 
 			<tr>
 				<th span="row">
-					<label for="wpep_api_key"><?php _e( 'Etherpad Lite API Key', 'wpep' ) ?></label>
+					<label for="participad_api_key"><?php _e( 'Etherpad Lite API Key', 'participad' ) ?></label>
 				</th>
 
 				<td>
-					<input <?php if ( $key_is_constant ) : ?>disabled="disabled"<?php endif ?> name="wpep_api_key" value="<?php echo esc_attr( wpep_api_key() ) ?>" />
+					<input <?php if ( $key_is_constant ) : ?>disabled="disabled"<?php endif ?> name="participad_api_key" value="<?php echo esc_attr( participad_api_key() ) ?>" />
 
-					<p class="description"><?php _e( "Found in APIKEY.txt in the root of your Etherpad Lite installation", 'wpep' ) ?></p>
+					<p class="description"><?php _e( "Found in APIKEY.txt in the root of your Etherpad Lite installation", 'participad' ) ?></p>
 					<?php if ( $key_is_constant ) : ?>
-						<p class="description"><?php _e( "<code>WPEP_API_KEY</code> is defined in <code>wp-config.php</code>.", 'wpep' ) ?></p>
+						<p class="description"><?php _e( "<code>PARTICIPAD_API_KEY</code> is defined in <code>wp-config.php</code>.", 'participad' ) ?></p>
 					<?php endif ?>
 				</td>
 			</tr>
 		</table>
 
-		<?php wp_nonce_field( 'wpep_settings' ) ?>
-		<input type="submit" name="submit" class="button-primary" value="<?php _e( "Save Changes", 'wpep' ) ?>" />
+		<?php wp_nonce_field( 'participad_settings' ) ?>
+		<input type="submit" name="submit" class="button-primary" value="<?php _e( "Save Changes", 'participad' ) ?>" />
 	</div>
 
 	</form>
@@ -74,14 +74,14 @@ function wpep_admin_page() {
 /**
  * Catches save requests from our admin page
  */
-function wpep_admin_page_save() {
+function participad_admin_page_save() {
 	global $pagenow;
 
 	if ( 'options-general.php' != $pagenow ) {
 		return;
 	}
 
-	if ( empty( $_GET['page'] ) || 'etherpad' != $_GET['page'] ) {
+	if ( empty( $_GET['page'] ) || 'participad' != $_GET['page'] ) {
 		return;
 	}
 
@@ -93,15 +93,15 @@ function wpep_admin_page_save() {
 		return;
 	}
 
-	check_admin_referer( 'wpep_settings' );
+	check_admin_referer( 'participad_settings' );
 
-	$endpoint = isset( $_POST['wpep_api_endpoint'] ) ? $_POST['wpep_api_endpoint'] : '';
-	$key      = isset( $_POST['wpep_api_key'] ) ? $_POST['wpep_api_key'] : '';
+	$endpoint = isset( $_POST['participad_api_endpoint'] ) ? $_POST['participad_api_endpoint'] : '';
+	$key      = isset( $_POST['participad_api_key'] ) ? $_POST['participad_api_key'] : '';
 
 	update_option( 'ep_api_endpoint', $endpoint );
 	update_option( 'ep_api_key', $key );
 }
-add_action( 'admin_init', 'wpep_admin_page_save' );
+add_action( 'admin_init', 'participad_admin_page_save' );
 
 /**
  * Returns the URL of the admin page
@@ -110,7 +110,7 @@ add_action( 'admin_init', 'wpep_admin_page_save' );
  *
  * @return string
  */
-function wpep_admin_url() {
-	return add_query_arg( 'page', 'etherpad', admin_url( 'options-general.php' ) );
+function participad_admin_url() {
+	return add_query_arg( 'page', 'participad', admin_url( 'options-general.php' ) );
 }
 

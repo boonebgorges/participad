@@ -5,12 +5,12 @@
  *
  * For example:
  *
- *     $text = wpep_client()->getText( $ep_post_id );
+ *     $text = participad_client()->getText( $ep_post_id );
  *
  * @since 1.0
  */
-function wpep_client() {
-	return WPEP_Client::instance();
+function participad_client() {
+	return participad_Client::instance();
 }
 
 /**
@@ -22,11 +22,11 @@ function wpep_client() {
  *
  * @return string $api_key
  */
-function wpep_api_key() {
+function participad_api_key() {
 	$api_key = '';
 
-	if ( defined( 'WPEP_API_KEY' ) ) {
-		$api_key = WPEP_API_KEY;
+	if ( defined( 'PARTICIPAD_API_KEY' ) ) {
+		$api_key = PARTICIPAD_API_KEY;
 	} else {
 		$api_key = get_option( 'ep_api_key' );
 	}
@@ -43,11 +43,11 @@ function wpep_api_key() {
  *
  * @return string $api_endpoint
  */
-function wpep_api_endpoint() {
+function participad_api_endpoint() {
 	$api_endpoint = '';
 
-	if ( defined( 'WPEP_API_ENDPOINT' ) ) {
-		$api_endpoint = WPEP_API_ENDPOINT;
+	if ( defined( 'PARTICIPAD_API_ENDPOINT' ) ) {
+		$api_endpoint = PARTICIPAD_API_ENDPOINT;
 	} else {
 		$api_endpoint = get_option( 'ep_api_endpoint' );
 	}
