@@ -71,19 +71,15 @@ class Participad {
 					continue;
 				}
 
-				include( PARTICIPAD_PLUGIN_DIR . 'modules/' . $file );
+				if ( ! include( PARTICIPAD_PLUGIN_DIR . 'modules/' . $file . '/' . $file . '.php' ) ) {
+					continue;
+				}
 
-				// Strip '.php'
-				$class_name = array_pop( array_reverse( explode( '.', $file ) ) );
-
-				// Drop 'class-'
-				$class_name = substr( $class_name, 6 );
-
-				// Convert to uppercase + underscores
-				$class_name = implode( '_', array_map( 'ucwords', explode( '-', $class_name ) ) );
+				// Build class name
+				$class_name = 'Participad_Integration_' . ucwords( $file );
 
 				if ( class_exists( $class_name ) ) {
-					$this->modules[ $class_name ] = new $class_name;
+					$this->modules[ $file ] = new $class_name;
 				}
 			}
 		}

@@ -18,18 +18,13 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 	public $localize_script = array();
 
 	function __construct() {
+		$this->id = 'dashboard';
+
 		if ( is_wp_error( $this->init() ) ) {
 			return;
 		}
 
-		// Todo: Move this somewhere else?
-		if ( $this->ep_post_id ) {
-			add_action( 'get_post_metadata', array( $this, 'prevent_check_edit_lock' ), 10, 4 );
-			add_action( 'admin_enqueue_scripts', array( $this, 'disable_autosave' ) );
-			add_filter( 'wp_insert_post_data', array( $this, 'sync_etherpad_content_to_wp' ), 10, 2 );
-			add_filter( 'wp_insert_post', array( $this, 'catch_dummy_post' ), 10, 2 );
-		}
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'admin_init', array( $this, 'start' ) );
 	}
 
 	/**
@@ -91,6 +86,14 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 
 		$this->wp_post_id = (int) $wp_post_id;
 
+	}
+
+	public function post_ep_setup() {
+		add_action( 'get_post_metadata', array( $this, 'prevent_check_edit_lock' ), 10, 4 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'disable_autosave' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'sync_etherpad_content_to_wp' ), 10, 2 );
+		add_filter( 'wp_insert_post', array( $this, 'catch_dummy_post' ), 10, 2 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -167,17 +170,11 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 	}
 
 	public function enqueue_scripts() {
-		wp_enqueue_style( 'participad_editor', PARTICIPAD_PLUGIN_URL . '/assets/css/editor.css' );
-		wp_enqueue_script( 'participad_editor', PARTICIPAD_PLUGIN_URL . '/assets/js/editor.js', array( 'jquery', 'editor' ) );
+		wp_enqueue_style( 'participad_editor', $this->module_url . 'css/dashboard.css' );
+		wp_enqueue_script( 'participad_editor', $this->module_url . 'js/dashboard.js', array( 'jquery', 'editor' ) );
 
-		$ep_url = add_query_arg( array(
-			'showControls' => 'true',
-			'showChat'     => 'false',
-			'showLineNumbers' => 'false',
-			'useMonospaceFont' => 'false',
-		), participad_api_endpoint() . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
+		$this->localize_script['url'] = $this->ep_iframe_url;
 
-		$this->localize_script['url'] = $ep_url;
 		wp_localize_script( 'participad_editor', 'Participad_Editor', $this->localize_script );
 	}
 

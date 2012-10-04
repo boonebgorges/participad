@@ -10,6 +10,13 @@
 abstract class Participad_Integration {
 
 	/**
+	 * @var string The unique string ID for this module
+	 *
+	 * @since 1.0
+	 */
+	public $id;
+
+	/**
 	 * @var obj A Participad_User object representing the current user
 	 *
 	 * @since 1.0
@@ -52,6 +59,20 @@ abstract class Participad_Integration {
 	public $ep_post_group_id;
 
 	/**
+	 * @var string URL of the EP iframe
+	 *
+	 * @since 1.0
+	 */
+	public $ep_iframe_url;
+
+	/**
+	 * @var string Module base path
+	 *
+	 * @since 1.0
+	 */
+	public $module_path;
+
+	/**
 	 * Steps through the process of setting up basic integration data
 	 *
 	 * Be sure to call this method early in your module class's constructor
@@ -59,10 +80,19 @@ abstract class Participad_Integration {
 	 * @since 1.0
 	 */
 	public function init() {
+		$this->set_module_path();
+		$this->set_module_url();
+
 		if ( ! participad_is_installed_correctly() ) {
 			return new WP_Error( 'not_installed_correctly', 'Participad is not installed correctly.' );
 		}
 
+		// Set up the admin panels and save methods
+		add_action( 'participad_admin_page', array( $this, 'admin_page' ) );
+		add_action( 'participad_admin_page_save', array( $this, 'admin_page_save' ) );
+	}
+
+	public function start() {
 		if ( ! $this->load_on_page() ) {
 			return;
 		}
@@ -82,10 +112,19 @@ abstract class Participad_Integration {
 		$this->set_ep_post_group_id();
 		$this->create_session();
 		$this->set_ep_post_id();
+		$this->set_ep_iframe_url();
 
-		// Set up the admin panels and save methods
-		add_action( 'participad_admin_page', array( $this, 'admin_page' ) );
-		add_action( 'participad_admin_page_save', array( $this, 'admin_page_save' ) );
+		if ( isset( $this->ep_post_id ) ) {
+			$this->post_ep_setup();
+		}
+	}
+
+	public function set_module_path() {
+		$this->module_path = trailingslashit( PARTICIPAD_PLUGIN_DIR . 'modules/' . $this->id );
+	}
+
+	public function set_module_url() {
+		$this->module_url = trailingslashit( PARTICIPAD_PLUGIN_URL . 'modules/' . $this->id );
 	}
 
 	/**
@@ -98,6 +137,11 @@ abstract class Participad_Integration {
 	 * @return bool
 	 */
 	abstract public function load_on_page();
+
+	/**
+	 * This is the method run after the EP post id is successfully set up
+	 */
+	abstract public function post_ep_setup();
 
 	/**
 	 * Set the current user WP user id property
@@ -163,6 +207,20 @@ abstract class Participad_Integration {
 		if ( ! empty( $this->current_post ) ) {
 			$this->ep_post_id = $this->current_post->ep_post_id;
 			$this->ep_post_id_concat = $this->ep_post_group_id . '$' . $this->ep_post_id;
+		}
+	}
+
+	/**
+	 * Calculate the URL for the EP iframe
+	 */
+	public function set_ep_iframe_url() {
+		if ( $this->ep_post_group_id && $this->ep_post_id ) {
+			$this->ep_iframe_url = add_query_arg( array(
+				'showControls' => 'true',
+				'showChat'     => 'false',
+				'showLineNumbers' => 'false',
+				'useMonospaceFont' => 'false',
+			), participad_api_endpoint() . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
 		}
 	}
 
