@@ -12,6 +12,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	var $post_type_name;
 
 	function __construct() {
+		$this->id = 'notepad';
 
 		// Calling directly, because we're already past init
 		$this->set_post_type_name();
@@ -109,13 +110,13 @@ class Participad_Integration_Notepad extends Participad_Integration {
 
 	public function post_ep_setup() {
 		if ( is_user_logged_in() && ! empty( $this->loggedin_user->ep_session_id ) ) {
-			add_action( 'wp_enqueue_styles', array( $this, 'enqueue_styles' ) );
+			add_action( 'wp_footer', array( $this, 'load_styles' ) );
 			add_action( 'the_content', array( $this, 'filter_content' ) );
 		}
 	}
 
 	public function filter_content( $content ) {
-		return '<iframe style="width:100%;" src="' . $this->ep_iframe_url . '"></iframe>';
+		return '<iframe id="participad-notepad" src="' . $this->ep_iframe_url . '"></iframe>';
 	}
 
 	/**
@@ -160,8 +161,12 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		}
 	}
 
-	public function enqueue_styles() {
-
+	/**
+	 * We have to load the styles directly in the footer, because of
+	 * load order issues with wp_enqueue_style()
+	 */
+	public function load_styles() {
+		echo "<link rel='stylesheet' href='" . $this->module_url . "css/notepad.css' type='text/css' media='all' />";
 	}
 
 	public function enqueue_scripts() {
