@@ -58,7 +58,10 @@ class Participad_Integration_Notepad extends Participad_Integration {
 			'show_ui' 	=> true, // @todo ?
 			'hierarchical' 	=> false,
 			'supports' 	=> array( 'title', 'editor', 'custom-fields' ),
-			'rewrite'       => true,
+			'rewrite'       => array(
+				'with_front' => false,
+				'slug'       => 'notepads'
+			),
 		), $this ) );
 
 	}
