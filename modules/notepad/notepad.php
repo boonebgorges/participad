@@ -14,6 +14,8 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	function __construct() {
 		$this->id = 'notepad';
 
+		add_action( 'wp_ajax_participad_notepad_autosave', array( $this, 'autosave_ajax_callback' ) ); // @todo nopriv?
+
 		// Calling directly, because we're already past init
 		$this->set_post_type_name();
 		$this->register_post_type();
@@ -76,50 +78,43 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		return isset( $queried_object->post_type ) && $this->post_type_name == $queried_object->post_type;
 	}
 
+	/**
+	 * The WP post ID is easy to set in this case
+	 */
 	public function set_wp_post_id() {
-		global $post;
-
-		$wp_post_id = 0;
-
-		if ( isset( $_GET['post'] ) ) {
-			$wp_post_id = $_GET['post'];
-		} else if ( isset( $_POST['post_ID'] ) ) {        // saving post
-			$wp_post_id = $_POST['post_ID'];
-		} else if ( !empty( $post->ID ) ) {
-			$wp_post_id = $post->ID;
-		}
-
-		// If we still have no post ID, we're probably in the post
-		// creation process. We have to get weird.
-		// 1) Create a dummy post for use throughout the process
-		// 2) Dynamically add a field to the post creation page that
-		//    contains the id of the dummy post
-		// 3) When the post is finally created, hook in, look for the
-		//    dummy post data, copy it to the new post, and delete the
-		//    dummy
-		if ( ! $wp_post_id ) {
-			$wp_post_id = wp_insert_post( array(
-				'post_title'   => 'Participad_Dummy_Post',
-				'post_content' => '',
-				'post_status'  => 'auto-draft'
-			) );
-
-			$this->localize_script['dummy_post_ID'] = $wp_post_id;
-		}
-
-		$this->wp_post_id = (int) $wp_post_id;
-
+		$this->wp_post_id = get_the_ID();
 	}
 
+	/**
+	 * The setup functions that happen after the EP id has been determined:
+	 *   - Enqueue styles/scripts
+	 *   - Filter the_content to put the EP instance on the page
+	 */
 	public function post_ep_setup() {
 		if ( is_user_logged_in() && ! empty( $this->loggedin_user->ep_session_id ) ) {
-			add_action( 'wp_footer', array( $this, 'load_styles' ) );
+			$this->enqueue_styles();
+			$this->enqueue_scripts();
 			add_action( 'the_content', array( $this, 'filter_content' ) );
 		}
 	}
 
+	/**
+	 * Replaces the content of the post with the EP iframe, plus other goodies
+	 */
 	public function filter_content( $content ) {
-		return '<iframe id="participad-notepad" src="' . $this->ep_iframe_url . '"></iframe>';
+		$content  = '<iframe id="participad-notepad" src="' . $this->ep_iframe_url . '"></iframe>';
+		$content .= '<input type="hidden" id="notepad-post-id" value="' . esc_attr( $this->wp_post_id ) . '" />';
+		$content .= wp_nonce_field( 'participad_notepad_autosave', 'participad-notepad-nonce', true, false );
+		return $content;
+	}
+
+	public function autosave_ajax_callback() {
+		check_admin_referer( 'participad_notepad_autosave' );
+
+		$p_post = new Participad_Post( 'wp_post_id=' . $_POST['post_id'] );
+		$p_post->sync_wp_ep_content();
+
+		die();
 	}
 
 	/**
@@ -164,16 +159,17 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		}
 	}
 
-	/**
-	 * We have to load the styles directly in the footer, because of
-	 * load order issues with wp_enqueue_style()
-	 */
-	public function load_styles() {
-		echo "<link rel='stylesheet' href='" . $this->module_url . "css/notepad.css' type='text/css' media='all' />";
+	public function enqueue_styles() {
+		wp_enqueue_style( 'participad_editor', $this->module_url . 'css/notepad.css' );
 	}
 
 	public function enqueue_scripts() {
-
+		wp_enqueue_script( 'jquery' );
+		wp_enqueue_script( 'schedule' );
+		wp_enqueue_script( 'participad_notepad', $this->module_url . 'js/notepad.js', array( 'jquery', 'schedule' ) );
+		wp_localize_script( 'participad_notepad', 'Participad_Notepad', array(
+			'autosave_interval' => AUTOSAVE_INTERVAL
+		) );
 	}
 
 	//////////////////

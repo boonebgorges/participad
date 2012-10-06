@@ -84,4 +84,26 @@ class Participad_Client extends EtherpadLiteClient {
 			}
 		}
 	}
+
+	////////////////////////////
+	// ADDITIONAL API METHODS //
+	////////////////////////////
+
+	/**
+	 * Get the last edited date for a pad
+	 */
+	public function getLastEdited( $padID ){
+		return $this->call("getLastEdited", array(
+			"padID" => $padID
+		));
+	}
+
+	/**
+	 * Get the HTML content of a pad
+	 */
+	public function getHTML( $padID ){
+		return $this->call("getHTML", array(
+			"padID" => $padID
+		));
+	}
 }
