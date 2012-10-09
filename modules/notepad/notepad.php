@@ -210,6 +210,37 @@ function participad_notepad_is_notepad() {
 }
 
 /**
+ * If this post has an associated Notepad, return its ids
+ *
+ * @since 1.0
+ * @return array
+ */
+function participad_notepad_post_has_notepad( $post_id = 0 ) {
+	$notepads = array();
+
+	if ( ! $post_id && is_single() ) {
+		$post_id = get_the_ID();
+	}
+
+	if ( ! $post_id ) {
+		return $notepads;
+	}
+
+	$posts = get_posts( array(
+		'post_type'  => participad_notepad_post_type_name(),
+		'meta_query' => array(
+			array(
+				'key'   => 'notepad_associated_post',
+				'value' => $post_id,
+			),
+		),
+		'post_status' => 'publish',
+		'posts_per_page' => -1,
+	) );
+
+	return $posts;
+}
+
 /**
  * Builds the HTML for the Create A Notepad widget and shortcode
  *
@@ -340,7 +371,7 @@ function participad_notepad_create_notepad( $args = array() ) {
 	) );
 
 	if ( $notepad_id ) {
-		update_post_meta( $notepad_id, 'notepad_associated_post', $notepad_id );
+		update_post_meta( $notepad_id, 'notepad_associated_post', $r['associated_post'] );
 	}
 
 	return $notepad_id;
