@@ -92,4 +92,4 @@ class Participad {
 function participad_bootstrap() {
 	Participad::instance();
 }
-add_action( 'init', 'participad_bootstrap' );
+add_action( 'plugins_loaded', 'participad_bootstrap' );

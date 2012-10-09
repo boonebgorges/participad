@@ -73,6 +73,13 @@ abstract class Participad_Integration {
 	public $module_path;
 
 	/**
+	 * @var string Module base path
+	 *
+	 * @since 1.0
+	 */
+	public $module_url;
+
+	/**
 	 * Steps through the process of setting up basic integration data
 	 *
 	 * Be sure to call this method early in your module class's constructor
@@ -206,7 +213,6 @@ abstract class Participad_Integration {
 	public function set_ep_post_id() {
 		if ( ! empty( $this->current_post ) ) {
 			$this->ep_post_id = $this->current_post->ep_post_id;
-			$this->ep_post_id_concat = $this->ep_post_group_id . '$' . $this->ep_post_id;
 		}
 	}
 

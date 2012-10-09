@@ -17,12 +17,15 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		add_action( 'wp_ajax_participad_notepad_autosave', array( $this, 'autosave_ajax_callback' ) ); // @todo nopriv?
 
 		// Calling directly, because we're already past init
-		$this->set_post_type_name();
-		$this->register_post_type();
+		add_action( 'init', array( $this, 'set_post_type_name' ), 20 );
+		add_action( 'init', array( $this, 'register_post_type' ), 30 );
 
 		if ( is_wp_error( $this->init() ) ) {
 			return;
 		}
+
+		// Required files
+		require( $this->module_path . 'widgets.php' );
 
 		add_action( 'wp', array( $this, 'start' ), 1 );
 	}
@@ -160,7 +163,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	}
 
 	public function enqueue_styles() {
-		wp_enqueue_style( 'participad_editor', $this->module_url . 'css/notepad.css' );
+		wp_enqueue_style( 'participad_notepad', $this->module_url . 'css/notepad.css' );
 	}
 
 	public function enqueue_scripts() {
@@ -181,3 +184,197 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	}
 
 }
+
+/* Here is a line about mustard */
+
+/**
+ * Get the 'participad_notepad' post type name
+ *
+ * @since 1.0
+ * @return str
+ */
+function participad_notepad_post_type_name() {
+	$p = Participad::instance();
+	return $p->modules['notepad']->post_type_name;
+}
+
+/**
+ * Is this a Notepad object?
+ *
+ * @since 1.0
+ * @return bool
+ */
+function participad_notepad_is_notepad() {
+	$queried_object = get_queried_object();
+	return isset( $queried_object->post_type ) && participad_notepad_post_type_name() == $queried_object->post_type;
+}
+
+/**
+/**
+ * Builds the HTML for the Create A Notepad widget and shortcode
+ *
+ * @param array $args See below for values
+ * @return string $form The HTML form
+ */
+function participad_notepad_create_render( $args = array() ) {
+	$r = wp_parse_args( $args, array(
+		'default_title'           => '',
+		'default_associated_post' => '',
+	) );
+
+	// Pull up a list of posts to populate the Link To field
+	$associated_post_args = array(
+		'post_type'              => array( 'post', 'page' ),
+		'post_status'            => 'publish',
+		'posts_per_page'         => -1,
+		'update_post_term_cache' => false,
+		'update_post_meta_cache' => false,
+		'orderby'                => 'title',
+		'order'                  => 'ASC',
+	);
+	$associated_posts = get_posts( $associated_post_args );
+	$associated_posts_options = '';
+	foreach( $associated_posts as $ap ) {
+		$selected = $ap->ID == $r['default_associated_post'] ? ' selected="selected" ' : '';
+		$associated_posts_options .= '<option value="' . esc_attr( $ap->ID ) . '"' . $selected . '>' . esc_attr( $ap->post_title ) . '</option>';
+	}
+
+	$form = '';
+
+	// @todo
+	if ( ! is_user_logged_in() ) {
+		return $form;
+	}
+
+	$form .= '<form id="notepad-create" method="post" action="">';
+	$form .=   '<table class="participad-form-table">';
+
+	$form .=     '<tr>';
+	$form .=       '<td class="notepad-create-label">';
+	$form .=         '<label for="notepad-name">' . __( 'Notepad Title:', 'participad' ) . '</label>';
+	$form .=       '</td>';
+
+	$form .=       '<td>';
+	$form .=         '<input name="notepad-name" id="notepad-name" value="' . esc_attr( $r['default_title'] ) . '" />';
+	$form .=       '</td>';
+	$form .=     '</tr>';
+
+	$form .=     '<tr>';
+	$form .=       '<td class="notepad-create-label">';
+	$form .=         '<label for="notepad-associated-post">' . __( 'Link Notepad To:', 'participad' ) . '</label>';
+	$form .=       '</td>';
+
+	$form .=       '<td>';
+	$form .=         '<select name="notepad-associated-post" id="notepad-associated-post">';
+	$form .=           '<option>' . __( '- None -', 'participad' ) . '</option>';
+	$form .=           $associated_posts_options;
+	$form .=         '</select>';
+	$form .=       '</td>';
+	$form .=     '</tr>';
+
+	$form .=   '</table>';
+	$form .=   '<input type="submit" name="participad-create-submit" id="participad-create-submit" value="' . __( 'Create Notepad', 'participad' ) . '" />';
+	$form .=   wp_nonce_field( 'participad_notepad_create', 'participad-notepad-nonce', true, false );
+	$form .= '</form>';
+
+	return $form;
+}
+
+/**
+ * Registers our notepad_create shortcode
+ */
+function participad_notepad_create_shortcode( $atts ) {
+	return participad_notepad_create_render( $atts );
+}
+add_shortcode( 'notepad_create', 'participad_notepad_create_shortcode' );
+
+/**
+ * Catches and processes notepad creation requests
+ */
+function participad_notepad_create_catch() {
+	if ( is_user_logged_in() && ! empty( $_POST['participad-create-submit'] ) ) {
+
+		check_admin_referer( 'participad_notepad_create', 'participad-notepad-nonce' );
+
+		$errors  = array();
+
+		if ( empty( $_POST['notepad-name'] ) ) {
+			$errors['notepad_noname'] = '1';
+		}
+
+		$associated_post = isset( $_POST['notepad-associated-post'] ) ? (int) $_POST['notepad-associated-post'] : 0;
+
+		$notepad_id = participad_notepad_create_notepad( array(
+			'name'            => $_POST['notepad-name'],
+			'associated_post' => $associated_post,
+			'author'          => get_current_user_id(),
+		) );
+
+		if ( $notepad_id ) {
+			$redirect = add_query_arg( 'notepad_created', '1', get_permalink( $notepad_id ) );
+		} else {
+			$errors['notepad_misc'] = '1';
+			$redirect = add_query_arg( $errors, $_POST['_wp_http_referer'] );
+		}
+
+		wp_safe_redirect( $redirect );
+	}
+}
+add_action( 'wp', 'participad_notepad_create_catch', 1 );
+
+/**
+ * Create a new notepad
+ */
+function participad_notepad_create_notepad( $args = array() ) {
+	$r = wp_parse_args( $args, array(
+		'name'            => '',
+		'associated_post' => '',
+		'author'          => '',
+	) );
+
+	$notepad_id = wp_insert_post( array(
+		'post_author' => $r['author'],
+		'post_title'  => $r['name'],
+		'post_status' => 'publish',
+		'post_type'   => participad_notepad_post_type_name(),
+	) );
+
+	if ( $notepad_id ) {
+		update_post_meta( $notepad_id, 'notepad_associated_post', $notepad_id );
+	}
+
+	return $notepad_id;
+}
+
+/**
+ * Detect when a success/error message should be shown
+ */
+function participad_notepad_display_error( $content ) {
+	$message = '';
+
+	// Admins can override these hardcoded styles
+	if ( ! apply_filters( 'participad_notepad_suppress_error_styles', false ) ) {
+		$message .= '
+			<style type="text/css">
+				div.participad-message { padding: 10px 15px; border: 1px solid #ccc; border-radius: 2px; margin-bottom: 1em; }
+				div.participad-message-success { background: #ffffe0; }
+				div.participad-message-error { background: #c43; }
+			</style>
+		';
+	}
+
+	if ( participad_notepad_is_notepad() && isset( $_GET['notepad_created'] ) ) {
+		$message .= '<div class="participad-message participad-message-success">' . __( 'Notepad created', 'participad' ) . '</div>';
+	}
+
+	if ( isset( $_GET['notepad_noname'] ) ) {
+		$message .= '<div class="participad-message participad-message-error">' . __( 'Notepads must have a title', 'participad' ) . '</div>';
+	}
+
+	if ( isset( $_GET['notepad_misc'] ) ) {
+		$message .= '<div class="participad-message participad-message-error">' . __( 'Could not create the notepad', 'participad' ) . '</div>';
+	}
+
+	return $message . $content;
+}
+add_filter( 'the_content', 'participad_notepad_display_error', 100 );

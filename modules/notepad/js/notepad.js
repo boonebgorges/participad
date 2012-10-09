@@ -5,6 +5,9 @@ jQuery(document).ready( function($) {
 	var wpnonce = $('#participad-notepad-nonce').val(); 
 
 	autosavePeriodical = $.schedule({time: Participad_Notepad.autosave_interval * 1000, func: function() { participad_notepad_autosave(post_id,wpnonce); }, repeat: true, protect: true});
+
+	// Save on leave
+	$(window).bind('beforeunload', function() { participad_notepad_autosave( post_id, wpnonce ); });
 },(jQuery));
 
 function participad_notepad_autosave(post_id,wpnonce) {
