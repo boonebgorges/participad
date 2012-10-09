@@ -30,6 +30,9 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		// Required files
 		require( $this->module_path . 'widgets.php' );
 
+		// BuddyPress integration should load at bp_init
+		add_action( 'bp_init', array( $this, 'bp_integration' ) );
+
 		// Load at 'wp', at which point the $wp_query global has been populated
 		add_action( 'wp', array( $this, 'start' ), 1 );
 	}
@@ -120,6 +123,11 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		return $content;
 	}
 
+	/**
+	 * Catches and process AJAX autosave requests
+	 *
+	 * @since 1.0
+	 */
 	public function autosave_ajax_callback() {
 		check_admin_referer( 'participad_notepad_autosave' );
 
@@ -127,6 +135,10 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		$p_post->sync_wp_ep_content();
 
 		die();
+	}
+
+	public function bp_integration() {
+		require( $this->module_path . 'bp-integration.php' );
 	}
 
 	/**
@@ -216,6 +228,30 @@ function participad_notepad_post_type_name() {
 function participad_notepad_is_notepad() {
 	$queried_object = get_queried_object();
 	return isset( $queried_object->post_type ) && participad_notepad_post_type_name() == $queried_object->post_type;
+}
+
+/**
+ * Get the autosave interval
+ *
+ * Falls back on WP's main AUTOSAVE_INTERVAL
+ *
+ * Set your own by defining PARTICIPAD_NOTEPAD_AUTOSAVE_INTERVAL, or by
+ * filtering participad_notepad_autosave_interval. Note that the filter
+ * always takes precedence.
+ *
+ * @since 1.0
+ * @return int
+ */
+function participad_notepad_autosave_interval() {
+	if ( defined( 'PARTICIPAD_NOTEPAD_AUTOSAVE_INTERVAL' ) ) {
+		$interval = (int) PARTICIPAD_NOTEPAD_AUTOSAVE_INTERVAL;
+	}
+
+	if ( empty( $interval ) ) {
+		$interval = AUTOSAVE_INTERVAL;
+	}
+
+	return apply_filters( 'participad_notepad_autosave_interval', $interval );
 }
 
 /**

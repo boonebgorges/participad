@@ -148,14 +148,15 @@ class Participad_Post {
 
 			$last_synced = get_post_meta( $this->wp_post_id, 'ep_last_synced', true );
 
-			// Don't sync too often
-			if ( time() - $last_synced < AUTOSAVE_INTERVAL ) {
-				return false;
-			}
-
-			// Bail if we're mid-sync
-			if ( get_post_meta( $this->wp_post_id, '_ep_doing_sync', true ) ) {
-				return false;
+			if ( $sync_time = get_post_meta( $this->wp_post_id, '_ep_doing_sync', true ) ) {
+				// If a sync has been running for more than 10 seconds,
+				// assume it's failed
+				if ( time() - $sync_time >= 10 ) {
+					delete_post_meta( $this->wp_post_id, '_ep_doing_sync' );
+				} else {
+					// We're mid-sync, so bail
+					return false;
+				}
 			}
 
 			$this->setup_wp_post();
@@ -165,7 +166,7 @@ class Participad_Post {
 				return false;
 			}
 
-			update_post_meta( $this->wp_post_id, '_ep_doing_sync', '1' );
+			update_post_meta( $this->wp_post_id, '_ep_doing_sync', time() );
 
 			$wp_last_edited = strtotime( $this->wp_post->post_modified_gmt );
 			$ep_last_edited = self::get_ep_post_last_edited( $this->ep_post_id_concat );
