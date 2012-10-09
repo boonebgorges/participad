@@ -11,6 +11,9 @@
 class Participad_Integration_Notepad extends Participad_Integration {
 	var $post_type_name;
 
+	/**
+	 * @since 1.0
+	 */
 	function __construct() {
 		$this->id = 'notepad';
 
@@ -27,9 +30,15 @@ class Participad_Integration_Notepad extends Participad_Integration {
 		// Required files
 		require( $this->module_path . 'widgets.php' );
 
+		// Load at 'wp', at which point the $wp_query global has been populated
 		add_action( 'wp', array( $this, 'start' ), 1 );
 	}
 
+	/**
+	 * Post type name is abstracted out so it can be overridden as necessary
+	 *
+	 * @since 1.0
+	 */
 	function set_post_type_name() {
 		$this->post_type_name = apply_filters( 'participad_notepad_post_type_name', 'participad_notepad' );
 	}
@@ -63,12 +72,12 @@ class Participad_Integration_Notepad extends Participad_Integration {
 			'show_ui' 	=> true, // @todo ?
 			'hierarchical' 	=> false,
 			'supports' 	=> array( 'title', 'editor', 'custom-fields' ),
+			'has_archive'   => true,
 			'rewrite'       => array(
 				'with_front' => false,
 				'slug'       => 'notepads'
 			),
 		), $this ) );
-
 	}
 
 	/**
