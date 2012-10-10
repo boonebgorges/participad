@@ -21,6 +21,10 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			return;
 		}
 
+		if ( 'yes' != get_option( 'participad_frontend_enable' ) ) {
+			return;
+		}
+
 		add_action( 'wp_ajax_participad_frontend_save', array( $this, 'save_ajax_callback' ) ); // @todo nopriv?
 
 		// Load at 'wp', at which point the $wp_query global has been populated
@@ -122,5 +126,39 @@ class Participad_Integration_Frontend extends Participad_Integration {
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style( 'participad_frontend', $this->module_url . 'css/frontend.css' );
+	}
+
+	public function admin_page() {
+		$enabled = get_option( 'participad_frontend_enable' );
+		if ( ! in_array( $enabled, array( 'yes', 'no' ) ) ) {
+			$enabled = 'yes';
+		}
+
+		?>
+
+		<h4><?php _e( 'Frontend', 'participad' ) ?></h4>
+
+		<p class="description"><?php _e( 'The Frontend module allows you to edit WordPress content, using Etherpad, without visiting the Dashboard. When this module is enabled, the Edit link that permitted users see on the front-end will refresh the page, with an Etherpad Lite instance.', 'participad' ) ?></p>
+
+		<table class="form-table">
+			<tr>
+				<th scope="row">
+					<label for="participad-frontend-enable"><?php _e( 'Enable Participad on the Front End', 'participad' ) ?></label>
+				</th>
+
+				<td>
+					<select id="participad-frontend-enable" name="participad-frontend-enable">
+						<option value="yes" <?php selected( $enabled, 'yes' ) ?>><?php _e( 'Yes', 'participad' ) ?></option>
+						<option value="no" <?php selected( $enabled, 'no' ) ?>><?php _e( 'No', 'participad' ) ?></option>
+					</select>
+				</td>
+			</tr>
+		</table>
+		<?php
+	}
+
+	public function admin_page_save() {
+		$enabled = isset( $_POST['participad-frontend-enable'] ) && 'no' == $_POST['participad-frontend-enable'] ? 'no' : 'yes';
+		update_option( 'participad_frontend_enable', $enabled );
 	}
 }

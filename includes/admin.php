@@ -32,6 +32,12 @@ function participad_admin_page() {
 	<div class="wrap">
 		<h2><?php _e( 'Participad Settings', 'participad' ) ?></h2>
 
+		<h3><?php _e( 'Etherpad Lite API Details', 'participad' ) ?></h3>
+
+		<p class="description"><?php _e( '<strong>Participad</strong> is a bridge between your WordPress installation and an Etherpad Lite installation. Please enter the API authentication details for your Etherpad Lite installation below.', 'participad' ) ?></p>
+
+		<p class="description"><?php _e( '<a href="http://github.com/Pita/etherpad-lite">Learn more about Etherpad Lite</a>', 'participad' ) ?></p>
+
 		<table class="form-table">
 			<tr>
 				<th span="row">
@@ -63,11 +69,16 @@ function participad_admin_page() {
 			</tr>
 		</table>
 
+		<h3><?php _e( 'Modules', 'participad' ) ?></h3>
+
+		<p class="description"><?php _e( '<strong>Participad Modules</strong> are different ways of enabling your users to collaborate on WordPress content using Etherpad Lite.', 'participad' ) ?></p>
+
+		<?php do_action( 'participad_admin_page' ) ?>
+
 		<?php wp_nonce_field( 'participad_settings' ) ?>
+		<br />
 		<input type="submit" name="submit" class="button-primary" value="<?php _e( "Save Changes", 'participad' ) ?>" />
 	</div>
-
-	<?php do_action( 'participad_admin_page' ) ?>
 
 	</form>
 	<?php

@@ -24,6 +24,10 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 			return;
 		}
 
+		if ( 'yes' != get_option( 'participad_dashboard_enable' ) ) {
+			return;
+		}
+
 		add_action( 'admin_init', array( $this, 'start' ) );
 	}
 
@@ -182,8 +186,37 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 	//  SETTINGS    //
 	//////////////////
 
-	public function settings_panel() {
+	public function admin_page() {
+		$enabled = get_option( 'participad_dashboard_enable' );
+		if ( ! in_array( $enabled, array( 'yes', 'no' ) ) ) {
+			$enabled = 'yes';
+		}
 
+		?>
+
+		<h4><?php _e( 'Dashboard', 'participad' ) ?></h4>
+
+		<p class="description"><?php _e( 'The Dashboard module allows you to edit Pages, Posts, and other WordPress content using Etherpad. Enabling this component will replace the HTML and Visual tabs on the Dashboard Edit pages with a Participad interface.', 'participad' ) ?></p>
+
+		<table class="form-table">
+			<tr>
+				<th scope="row">
+					<label for="participad-dashboard-enable"><?php _e( 'Enable Participad on the Dashboard', 'participad' ) ?></label>
+				</th>
+
+				<td>
+					<select id="participad-dashboard-enable" name="participad-dashboard-enable">
+						<option value="yes" <?php selected( $enabled, 'yes' ) ?>><?php _e( 'Yes', 'participad' ) ?></option>
+						<option value="no" <?php selected( $enabled, 'no' ) ?>><?php _e( 'No', 'participad' ) ?></option>
+					</select>
+				</td>
+			</tr>
+		</table>
+		<?php
 	}
 
+	public function admin_page_save() {
+		$enabled = isset( $_POST['participad-dashboard-enable'] ) && 'no' == $_POST['participad-dashboard-enable'] ? 'no' : 'yes';
+		update_option( 'participad_dashboard_enable', $enabled );
+	}
 }

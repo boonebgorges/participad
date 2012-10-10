@@ -17,13 +17,16 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	function __construct() {
 		$this->id = 'notepad';
 
-		// Calling directly, because we're already past init
-		add_action( 'init', array( $this, 'set_post_type_name' ), 20 );
-		add_action( 'init', array( $this, 'register_post_type' ), 30 );
-
 		if ( is_wp_error( $this->init() ) ) {
 			return;
 		}
+
+		if ( 'yes' != get_option( 'participad_notepad_enable' ) ) {
+			return;
+		}
+
+		add_action( 'init', array( $this, 'set_post_type_name' ), 20 );
+		add_action( 'init', array( $this, 'register_post_type' ), 30 );
 
 		// Required files
 		require( $this->module_path . 'widgets.php' );
@@ -169,10 +172,39 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	//  SETTINGS    //
 	//////////////////
 
-	public function settings_panel() {
+	public function admin_page() {
+		$enabled = get_option( 'participad_notepad_enable' );
+		if ( ! in_array( $enabled, array( 'yes', 'no' ) ) ) {
+			$enabled = 'yes';
+		}
 
+		?>
+
+		<h4><?php _e( 'Notepad', 'participad' ) ?></h4>
+
+		<p class="description"><?php _e( 'The Notepad module gives your users a handy way to take collaborative notes. Notepads are front-end note-taking spaces, stored in a WordPress custom post type, and optionally associated with non-Notepad posts. If you\'re using Notepads, you may want to enable some of our helpful widgets and shortcodes.', 'participad' ) ?></p>
+
+		<table class="form-table">
+			<tr>
+				<th scope="row">
+					<label for="participad-notepad-enable"><?php _e( 'Enable Participad Notepads', 'participad' ) ?></label>
+				</th>
+
+				<td>
+					<select id="participad-notepad-enable" name="participad-notepad-enable">
+						<option value="yes" <?php selected( $enabled, 'yes' ) ?>><?php _e( 'Yes', 'participad' ) ?></option>
+						<option value="no" <?php selected( $enabled, 'no' ) ?>><?php _e( 'No', 'participad' ) ?></option>
+					</select>
+				</td>
+			</tr>
+		</table>
+		<?php
 	}
 
+	public function admin_page_save() {
+		$enabled = isset( $_POST['participad-notepad-enable'] ) && 'no' == $_POST['participad-notepad-enable'] ? 'no' : 'yes';
+		update_option( 'participad_notepad_enable', $enabled );
+	}
 }
 
 /* Here is a line about mustard */
