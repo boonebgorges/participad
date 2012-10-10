@@ -132,7 +132,7 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 	 * and if found, sync the EP content into the WP post
 	 *
 	 * Note that this will overwrite local modifications.
-	 * @todo Do more conscientious syncing
+	 * @todo Refactor to use the correct sync mechanism
 	 */
 	public function sync_etherpad_content_to_wp( $postdata ) {
 		try {
@@ -143,11 +143,11 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 				$post_id = (int) $_POST['participad_dummy_post_ID'];
 				$ep_post_id = get_post_meta( $post_id, 'ep_post_group_id', true ) . '$' . get_post_meta( $post_id, 'ep_post_id', true );
 			} else {
-				$ep_post_id = $this->ep_post_id_concat;
+				$ep_post_id = $this->current_post->ep_post_id_concat;
 			}
 
-			$text = participad_client()->getText( $ep_post_id );
-			$postdata['post_content'] = $text->text;
+			$text = participad_client()->getHTML( $ep_post_id );
+			$postdata['post_content'] = $text->html;
 		} catch ( Exception $e ) {}
 
 		return $postdata;
