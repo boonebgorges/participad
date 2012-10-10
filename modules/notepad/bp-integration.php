@@ -8,6 +8,14 @@
  * @since 1.0
  */
 
+/**
+ * When a Notepad is edited, record the fact to the activity stream
+ *
+ * @since 1.0
+ * @param int $post_id
+ * @param object $post
+ * @return int The id of the activity item posted
+ */
 function participad_notepad_record_notepad_activity( $post_id, $post ) {
 	global $bp;
 

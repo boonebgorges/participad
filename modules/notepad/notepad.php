@@ -17,8 +17,6 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	function __construct() {
 		$this->id = 'notepad';
 
-		add_action( 'wp_ajax_participad_notepad_autosave', array( $this, 'autosave_ajax_callback' ) ); // @todo nopriv?
-
 		// Calling directly, because we're already past init
 		add_action( 'init', array( $this, 'set_post_type_name' ), 20 );
 		add_action( 'init', array( $this, 'register_post_type' ), 30 );
@@ -95,6 +93,8 @@ class Participad_Integration_Notepad extends Participad_Integration {
 
 	/**
 	 * The WP post ID is easy to set in this case
+	 *
+	 * @since 1.0
 	 */
 	public function set_wp_post_id() {
 		$this->wp_post_id = get_the_ID();
@@ -103,68 +103,36 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	/**
 	 * The setup functions that happen after the EP id has been determined:
 	 *   - Enqueue styles/scripts
+	 *   - Remove the Edit link
 	 *   - Filter the_content to put the EP instance on the page
+	 *
+	 * @since 1.0
 	 */
 	public function post_ep_setup() {
 		if ( is_user_logged_in() && ! empty( $this->loggedin_user->ep_session_id ) ) {
 			$this->enqueue_styles();
 			$this->enqueue_scripts();
+			add_filter( 'edit_post_link', array( &$this, 'edit_post_link' ), 10, 2 );
 			add_action( 'the_content', array( $this, 'filter_content' ) );
 		}
 	}
 
 	/**
-	 * Replaces the content of the post with the EP iframe, plus other goodies
-	 */
-	public function filter_content( $content ) {
-		$content  = '<iframe id="participad-notepad" src="' . $this->ep_iframe_url . '"></iframe>';
-		$content .= '<input type="hidden" id="notepad-post-id" value="' . esc_attr( $this->wp_post_id ) . '" />';
-		$content .= wp_nonce_field( 'participad_notepad_autosave', 'participad-notepad-nonce', true, false );
-		return $content;
-	}
-
-	/**
-	 * Catches and process AJAX autosave requests
+	 * Load the BuddyPress integration piece
 	 *
 	 * @since 1.0
 	 */
-	public function autosave_ajax_callback() {
-		check_admin_referer( 'participad_notepad_autosave' );
-
-		$p_post = new Participad_Post( 'wp_post_id=' . $_POST['post_id'] );
-		$p_post->sync_wp_ep_content();
-
-		die();
-	}
-
 	public function bp_integration() {
 		require( $this->module_path . 'bp-integration.php' );
 	}
 
 	/**
-	 * On WP post save, look to see whether there's a corresponding EP post,
-	 * and if found, sync the EP content into the WP post
+	 * We don't need an Edit link on Notepads
 	 *
-	 * Note that this will overwrite local modifications.
-	 * @todo Do more conscientious syncing
+	 * @since 1.0
 	 */
-	public function sync_etherpad_content_to_wp( $postdata ) {
-		try {
-			// We have to concatenaty the getText source
-			// differently depending on whether this is a new or
-			// existing post
-			if ( isset( $_POST['participad_dummy_post_ID'] ) ) {
-				$post_id = (int) $_POST['participad_dummy_post_ID'];
-				$ep_post_id = get_post_meta( $post_id, 'ep_post_group_id', true ) . '$' . get_post_meta( $post_id, 'ep_post_id', true );
-			} else {
-				$ep_post_id = $this->ep_post_id_concat;
-			}
-
-			$text = participad_client()->getText( $ep_post_id );
-			$postdata['post_content'] = $text->text;
-		} catch ( Exception $e ) {}
-
-		return $postdata;
+	public function edit_post_link( $link, $post_id ) {
+		return '';
 	}
 
 	/**
@@ -190,9 +158,10 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'schedule' );
-		wp_enqueue_script( 'participad_notepad', $this->module_url . 'js/notepad.js', array( 'jquery', 'schedule' ) );
+		wp_enqueue_script( 'participad_frontend', $this->module_url . 'js/frontend.js', array( 'jquery' ) );
+		wp_enqueue_script( 'participad_notepad', $this->module_url . 'js/notepad.js', array( 'jquery', 'participad_frontend', 'schedule' ) );
 		wp_localize_script( 'participad_notepad', 'Participad_Notepad', array(
-			'autosave_interval' => AUTOSAVE_INTERVAL
+			'autosave_interval' => participad_notepad_autosave_interval(),
 		) );
 	}
 

@@ -231,6 +231,34 @@ abstract class Participad_Integration {
 	}
 
 	/**
+	 * Replaces the content of the post with the EP iframe, plus other goodies
+	 *
+	 * To use this in your own Participad module, filter 'the_content'. Eg:
+	 *
+	 *   add_filter( 'the_content', array( &$this, 'filter_content' ) );
+	 */
+	public function filter_content( $content ) {
+		$content  = '<iframe id="participad-ep-iframe" src="' . $this->ep_iframe_url . '"></iframe>';
+		$content .= '<input type="hidden" id="participad-frontend-post-id" value="' . esc_attr( $this->wp_post_id ) . '" />';
+		$content .= wp_nonce_field( 'participad_frontend_nonce', 'participad-frontend-nonce', true, false );
+		return $content;
+	}
+
+	/**
+	 * Catches and process AJAX save requests
+	 *
+	 * @since 1.0
+	 */
+	public function save_ajax_callback() {
+		check_admin_referer( 'participad_frontend_nonce' );
+
+		$p_post = new Participad_Post( 'wp_post_id=' . $_POST['post_id'] );
+		$p_post->sync_wp_ep_content();
+
+		die();
+	}
+
+	/**
 	 * Markup for the admin page
 	 *
 	 * Create the markup that'll appears on your module's section of the admin page
