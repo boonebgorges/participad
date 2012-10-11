@@ -169,7 +169,9 @@ class Participad_Post {
 			update_post_meta( $this->wp_post_id, '_ep_doing_sync', time() );
 
 			$wp_last_edited = strtotime( $this->wp_post->post_modified_gmt );
-			$ep_last_edited = self::get_ep_post_last_edited( $this->ep_post_id_concat );
+
+			// getLastEdited doesn't exist on older versions of EPL
+			//$ep_last_edited = self::get_ep_post_last_edited( $this->ep_post_id_concat );
 
 			// @todo There are issues with the way that EPL's API allows for pad text
 			// to be set - stuff like HTML breaks the pad, and ruins user highlighting.

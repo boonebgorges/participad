@@ -79,7 +79,7 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			$link = preg_replace( '/href=".*?"/', 'href="' . $new_link . '"', $link );
 		} else {
 			$new_link = remove_query_arg( 'participad_edit', get_permalink( $post_id ) );
-			$link = '<a href="' . $new_link . '">' . __( 'Exit Edit Mode', 'participad' ) . '</a>';
+			$link = '<a class="participad-exit-edit-mode" href="' . $new_link . '">' . __( 'Exit Edit Mode', 'participad' ) . '</a>';
 		}
 
 		return $link;
