@@ -28,7 +28,7 @@ class Participad_Notepad_Create_Widget extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$title = isset( $instance['title'] ) ? $instance['title'] : __( 'Notepad Info', 'participad' );
+		$title = isset( $instance['title'] ) ? $instance['title'] : __( 'Create A Notepad', 'participad' );
 		$use_packaged_css = isset( $instance['use_packaged_css'] ) && 'no' == $instance['use_packaged_css'] ? 'no' : 'yes';
 
 		?>
