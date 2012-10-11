@@ -22,10 +22,13 @@ class Participad_Client extends EtherpadLiteClient {
 	 */
 	public static function instance() {
 		if ( empty( self::$instance ) ) {
-			self::$instance = new Participad_Client(
-				participad_api_key(),
-				participad_api_endpoint()
-			);
+			// Don't try to initialize with no URL
+			if ( participad_api_endpoint() ) {
+				self::$instance = new Participad_Client(
+					participad_api_key(),
+					participad_api_endpoint()
+				);
+			}
 		}
 
 		return self::$instance;
