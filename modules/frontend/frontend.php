@@ -21,7 +21,7 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			return;
 		}
 
-		if ( 'yes' != get_option( 'participad_frontend_enable' ) ) {
+		if ( 'no' == get_option( 'participad_frontend_enable' ) ) {
 			return;
 		}
 

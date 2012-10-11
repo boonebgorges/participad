@@ -24,7 +24,7 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 			return;
 		}
 
-		if ( 'yes' != get_option( 'participad_dashboard_enable' ) ) {
+		if ( 'no' == get_option( 'participad_dashboard_enable' ) ) {
 			return;
 		}
 

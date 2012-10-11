@@ -21,7 +21,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 			return;
 		}
 
-		if ( 'yes' != get_option( 'participad_notepad_enable' ) ) {
+		if ( 'no' == get_option( 'participad_notepad_enable' ) ) {
 			return;
 		}
 
