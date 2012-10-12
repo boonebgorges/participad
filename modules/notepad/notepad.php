@@ -297,6 +297,7 @@ function participad_notepad_create_render( $args = array() ) {
 	$r = wp_parse_args( $args, array(
 		'default_title'           => '',
 		'default_associated_post' => '',
+		'use_packaged_css'        => true,
 	) );
 
 	// Pull up a list of posts to populate the Link To field
@@ -318,38 +319,40 @@ function participad_notepad_create_render( $args = array() ) {
 
 	$form = '';
 
+	if ( (bool) $r['use_packaged_css'] ) {
+		$form .= '<style type="text/css">
+			form.notepad-create { font-size: .8em; }
+			form.notepad-create ul { list-style-type: none; }
+			form.notepad-create li { margin-bottom: .5em; }
+			form.notepad-create label { display: block; float: left; width: 120px; }
+			form.notepad-create input[type="text"] { width: 50%; }
+			form.notepad-create select { width: 50%; }
+			form.notepad-create input[type="submit"] { margin-top: .5em; }
+		</style>';
+	}
+
 	// @todo
 	if ( ! is_user_logged_in() ) {
 		return $form;
 	}
 
-	$form .= '<form id="notepad-create" method="post" action="">';
-	$form .=   '<table class="participad-form-table">';
+	$form .= '<form class="notepad-create" method="post" action="">';
+	$form .=   '<ul class="participad-form-list">';
 
-	$form .=     '<tr>';
-	$form .=       '<td class="notepad-create-label">';
-	$form .=         '<label for="notepad-name">' . __( 'Notepad Title:', 'participad' ) . '</label>';
-	$form .=       '</td>';
+	$form .=     '<li>';
+	$form .=       '<label for="notepad-name">' . __( 'Notepad Title:', 'participad' ) . '</label>';
+	$form .=       '<input type="text" name="notepad-name" id="notepad-name" value="' . esc_attr( $r['default_title'] ) . '" />';
+	$form .=     '</li>';
 
-	$form .=       '<td>';
-	$form .=         '<input name="notepad-name" id="notepad-name" value="' . esc_attr( $r['default_title'] ) . '" />';
-	$form .=       '</td>';
-	$form .=     '</tr>';
+	$form .=     '<li>';
+	$form .=       '<label for="notepad-associated-post">' . __( 'Link Notepad To:', 'participad' ) . '</label>';
+	$form .=       '<select name="notepad-associated-post" id="notepad-associated-post">';
+	$form .=         '<option>' . __( '- None -', 'participad' ) . '</option>';
+	$form .=         $associated_posts_options;
+	$form .=       '</select>';
+	$form .=     '</li>';
 
-	$form .=     '<tr>';
-	$form .=       '<td class="notepad-create-label">';
-	$form .=         '<label for="notepad-associated-post">' . __( 'Link Notepad To:', 'participad' ) . '</label>';
-	$form .=       '</td>';
-
-	$form .=       '<td>';
-	$form .=         '<select name="notepad-associated-post" id="notepad-associated-post">';
-	$form .=           '<option>' . __( '- None -', 'participad' ) . '</option>';
-	$form .=           $associated_posts_options;
-	$form .=         '</select>';
-	$form .=       '</td>';
-	$form .=     '</tr>';
-
-	$form .=   '</table>';
+	$form .=   '</ul>';
 	$form .=   '<input type="submit" name="participad-create-submit" id="participad-create-submit" value="' . __( 'Create Notepad', 'participad' ) . '" />';
 	$form .=   wp_nonce_field( 'participad_notepad_create', 'participad-notepad-nonce', true, false );
 	$form .= '</form>';

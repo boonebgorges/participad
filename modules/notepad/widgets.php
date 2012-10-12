@@ -64,14 +64,6 @@ class Participad_Notepad_Create_Widget extends WP_Widget {
 		$title = $instance['title'];
 		$use_packaged_css = ! isset( $instance['use_packaged_css'] ) || 'no' == $instance['use_packaged_css'] ? 'no' : 'yes';
 
-		if ( 'yes' == $use_packaged_css ) {
-			echo '<style type="text/css">
-				.widget_participad_notepad_create { font-size: .8em; }
-				.widget_participad_notepad_create #notepad-name { width: 90%; }
-				.widget_participad_notepad_create td { width: 50%; padding-bottom: 10px; }
-			</style>';
-		}
-
 		echo $before_widget;
 
 		if ( ! empty( $title ) ) {
