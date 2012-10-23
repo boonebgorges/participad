@@ -20,7 +20,7 @@ function participad_frontend_save( post_id, wpnonce, callback ) {
 
 	jQuery.ajax({
 		type: 'POST',
-		url: ajaxurl,
+		url: Participad_Frontend.ajaxurl,
 		data: {
 			action: 'participad_frontend_save',
 			_wpnonce: wpnonce,

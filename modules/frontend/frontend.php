@@ -117,6 +117,9 @@ class Participad_Integration_Frontend extends Participad_Integration {
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'participad_frontend', $this->module_url . 'js/frontend.js', array( 'jquery' ) );
+        wp_localize_script( 'participad_frontend', 'Participad_Frontend', array(
+            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+        ) );
 	}
 
 	/**
