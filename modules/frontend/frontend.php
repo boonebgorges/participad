@@ -105,9 +105,26 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			return;
 		}
 
+        // This is the main content filter that adds the Etherpad interface
 		add_action( 'the_content', array( $this, 'filter_content' ) );
+
+        // Adds some additional text to the content box
+		add_action( 'the_content', array( $this, 'filter_content_helptext' ), 20 );
 	}
 
+    /**
+     * Adds help text underneath Etherpad instances on the front end
+     *
+     * @since 1.0
+     *
+     * @param string $content The content, which should already have the
+     *   WP content swapped out with the iframe (see maybe_filter_content())
+     * @return string $content The content with our text appended
+     */
+    public function filter_content_helptext( $content ) {
+        $content .= '<p class="participad-frontend-helptext">' . sprintf( __( "You're in collaborative edit mode. <a href='%s' class='participad-exit-edit-mode'>Return to standard mode</a>.", 'participad' ), remove_query_arg( 'participad_edit', get_permalink( $post_id ) ) ) . '</p>';
+        return $content;
+    }
 
 	/**
 	 * Enqueue necessary scripts
