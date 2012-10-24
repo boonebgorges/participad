@@ -188,11 +188,16 @@ function participad_flush_rewrite_rules() {
 
         global $wp_rewrite;
 
-        // Check to see whether our rules have been registered yet
-        $rule = array_pop( array_reverse( $wp_rewrite->extra_rules_top ) );
+        // Check to see whether our rules have been registered yet, by
+	// finding a Notepad rule and then comparing it to the registered rules
+	foreach ( $wp_rewrite->extra_rules_top as $rewrite => $rule ) {
+		if ( 0 === strpos( $rewrite, 'notepads' ) ) {
+			$test_rule = $rule;
+		}
+	}
         $registered_rules = get_option( 'rewrite_rules' );
 
-        if ( ! in_array( $rule, $registered_rules ) ) {
+        if ( ! in_array( $test_rule, $registered_rules ) ) {
                 flush_rewrite_rules();
         }
 }
