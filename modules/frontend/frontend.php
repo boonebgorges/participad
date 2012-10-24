@@ -21,7 +21,7 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			return;
 		}
 
-		if ( 'yes' != get_option( 'participad_frontend_enable' ) ) {
+		if ( 'no' == get_option( 'participad_frontend_enable' ) ) {
 			return;
 		}
 
@@ -79,7 +79,7 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			$link = preg_replace( '/href=".*?"/', 'href="' . $new_link . '"', $link );
 		} else {
 			$new_link = remove_query_arg( 'participad_edit', get_permalink( $post_id ) );
-			$link = '<a href="' . $new_link . '">' . __( 'Exit Edit Mode', 'participad' ) . '</a>';
+			$link = '<a class="participad-exit-edit-mode" href="' . $new_link . '">' . __( 'Exit Edit Mode', 'participad' ) . '</a>';
 		}
 
 		return $link;
@@ -105,9 +105,26 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			return;
 		}
 
+        // This is the main content filter that adds the Etherpad interface
 		add_action( 'the_content', array( $this, 'filter_content' ) );
+
+        // Adds some additional text to the content box
+		add_action( 'the_content', array( $this, 'filter_content_helptext' ), 20 );
 	}
 
+    /**
+     * Adds help text underneath Etherpad instances on the front end
+     *
+     * @since 1.0
+     *
+     * @param string $content The content, which should already have the
+     *   WP content swapped out with the iframe (see maybe_filter_content())
+     * @return string $content The content with our text appended
+     */
+    public function filter_content_helptext( $content ) {
+        $content .= '<p class="participad-frontend-helptext">' . sprintf( __( "You're in collaborative edit mode. <a href='%s' class='participad-exit-edit-mode'>Return to standard mode</a>.", 'participad' ), remove_query_arg( 'participad_edit', get_permalink( $post_id ) ) ) . '</p>';
+        return $content;
+    }
 
 	/**
 	 * Enqueue necessary scripts
@@ -117,6 +134,9 @@ class Participad_Integration_Frontend extends Participad_Integration {
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'participad_frontend', $this->module_url . 'js/frontend.js', array( 'jquery' ) );
+        wp_localize_script( 'participad_frontend', 'Participad_Frontend', array(
+            'ajaxurl' => admin_url( 'admin-ajax.php' ),
+        ) );
 	}
 
 	/**

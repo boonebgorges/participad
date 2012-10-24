@@ -6,7 +6,7 @@ jQuery(document).ready( function($) {
 		participad_frontend_save( post_id, wpnonce );
 	});
 
-	$('.edit-link a').bind('click', function(e) {
+	$('.participad-exit-edit-mode').bind('click', function(e) {
 		e.preventDefault();
 		var goto_href = this.href;
 		participad_frontend_save( post_id, wpnonce, function() { window.location = goto_href; } );
@@ -20,7 +20,7 @@ function participad_frontend_save( post_id, wpnonce, callback ) {
 
 	jQuery.ajax({
 		type: 'POST',
-		url: ajaxurl,
+		url: Participad_Frontend.ajaxurl,
 		data: {
 			action: 'participad_frontend_save',
 			_wpnonce: wpnonce,

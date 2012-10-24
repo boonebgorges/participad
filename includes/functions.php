@@ -68,7 +68,7 @@ function participad_is_installed_correctly() {
 		$is_installed_correctly = false;
 	}
 
-	if ( ! participad_client()->is_connected() ) {
+	if ( ! method_exists( participad_client(), 'is_connected' ) || ! participad_client()->is_connected() ) {
 		$is_installed_correctly = false;
 	}
 
