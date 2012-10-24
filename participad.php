@@ -89,7 +89,9 @@ class Participad {
 /**
  * Plugin bootstrap
  */
-function participad_bootstrap() {
-	Participad::instance();
+function participad() {
+	return Participad::instance();
 }
-add_action( 'plugins_loaded', 'participad_bootstrap' );
+add_action( 'plugins_loaded', 'participad' );
+
+register_deactivation_hook( __FILE__, 'flush_rewrite_rules' );

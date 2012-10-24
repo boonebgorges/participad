@@ -176,3 +176,24 @@ function participad_is_admin_page() {
 
 	return 'options-general.php' == $pagenow && isset( $_GET['page'] ) && 'participad' == $_GET['page'];
 }
+
+function participad_flush_rewrite_rules() {
+        if ( ! is_admin() ) {
+                return;
+        }
+
+        if ( ! is_super_admin() ) {
+                return;
+        }
+
+        global $wp_rewrite;
+
+        // Check to see whether our rules have been registered yet
+        $rule = array_pop( array_reverse( $wp_rewrite->extra_rules_top ) );
+        $registered_rules = get_option( 'rewrite_rules' );
+
+        if ( ! in_array( $rule, $registered_rules ) ) {
+                flush_rewrite_rules();
+        }
+}
+add_action( 'admin_init', 'participad_flush_rewrite_rules' );
