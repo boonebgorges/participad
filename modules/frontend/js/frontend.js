@@ -6,7 +6,7 @@ jQuery(document).ready( function($) {
 		participad_frontend_save( post_id, wpnonce );
 	});
 
-	$('.participad-exit-edit-mode').bind('click', function(e) {
+	$('body').on('click', 'a', function(e) {
 		e.preventDefault();
 		var goto_href = this.href;
 		participad_frontend_save( post_id, wpnonce, function() { window.location = goto_href; } );

@@ -161,7 +161,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'schedule' );
-		wp_enqueue_script( 'participad_frontend', $this->module_url . 'js/frontend.js', array( 'jquery' ) );
+		wp_enqueue_script( 'participad_frontend', PARTICIPAD_PLUGIN_URL . 'modules/frontend/js/frontend.js', array( 'jquery' ) );
 		wp_enqueue_script( 'participad_notepad', $this->module_url . 'js/notepad.js', array( 'jquery', 'participad_frontend', 'schedule' ) );
 		wp_localize_script( 'participad_notepad', 'Participad_Notepad', array(
 			'autosave_interval' => participad_notepad_autosave_interval(),
@@ -333,7 +333,7 @@ function participad_notepad_create_render( $args = array() ) {
 
 	// @todo
 	if ( ! is_user_logged_in() ) {
-		return $form;
+		return sprintf( __( 'You <a href="%s">log in</a> to create Notepads.', 'participad' ), add_query_arg( 'redirect_to', wp_guess_url(), wp_login_url() ) );
 	}
 
 	$form .= '<form class="notepad-create" method="post" action="">';

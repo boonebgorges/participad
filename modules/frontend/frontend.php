@@ -122,7 +122,7 @@ class Participad_Integration_Frontend extends Participad_Integration {
      * @return string $content The content with our text appended
      */
     public function filter_content_helptext( $content ) {
-        $content .= '<p class="participad-frontend-helptext">' . sprintf( __( "You're in collaborative edit mode. <a href='%s' class='participad-exit-edit-mode'>Return to standard mode</a>.", 'participad' ), remove_query_arg( 'participad_edit', get_permalink( $post_id ) ) ) . '</p>';
+        $content .= '<p class="participad-frontend-helptext">' . sprintf( __( "You're in collaborative edit mode. <a href='%s' class='participad-exit-edit-mode'>Return to standard mode</a>.", 'participad' ), remove_query_arg( 'participad_edit', get_permalink() ) ) . '</p>';
         return $content;
     }
 
