@@ -186,6 +186,10 @@ function participad_flush_rewrite_rules() {
                 return;
         }
 
+	if ( ! participad_is_installed_correctly() ) {
+		return;
+	}
+
         global $wp_rewrite;
 
         // Check to see whether our rules have been registered yet, by
