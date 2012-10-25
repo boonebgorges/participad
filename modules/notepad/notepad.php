@@ -161,7 +161,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	public function enqueue_scripts() {
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'schedule' );
-		wp_enqueue_script( 'participad_frontend', $this->module_url . 'js/frontend.js', array( 'jquery' ) );
+		wp_enqueue_script( 'participad_frontend', PARTICIPAD_PLUGIN_URL . 'modules/frontend/js/frontend.js', array( 'jquery' ) );
 		wp_enqueue_script( 'participad_notepad', $this->module_url . 'js/notepad.js', array( 'jquery', 'participad_frontend', 'schedule' ) );
 		wp_localize_script( 'participad_notepad', 'Participad_Notepad', array(
 			'autosave_interval' => participad_notepad_autosave_interval(),
