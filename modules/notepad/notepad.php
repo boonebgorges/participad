@@ -333,7 +333,7 @@ function participad_notepad_create_render( $args = array() ) {
 
 	// @todo
 	if ( ! is_user_logged_in() ) {
-		return $form;
+		return sprintf( __( 'You <a href="%s">log in</a> to create Notepads.', 'participad' ), add_query_arg( 'redirect_to', wp_guess_url(), wp_login_url() ) );
 	}
 
 	$form .= '<form class="notepad-create" method="post" action="">';
