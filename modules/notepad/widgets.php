@@ -70,7 +70,12 @@ class Participad_Notepad_Create_Widget extends WP_Widget {
 			echo $before_title . $title . $after_title;
 		}
 
-		echo participad_notepad_create_render();
+                $args = array();
+                if ( is_single() ) {
+                        $args['default_associated_post'] = get_the_ID();
+                }
+
+		echo participad_notepad_create_render( $args );
 
 		echo $after_widget;
 	}
