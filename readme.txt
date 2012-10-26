@@ -12,7 +12,7 @@ Realtime collaborative editing for WordPress content, powered by Etherpad Lite.
 
 == Description ==
 
-Participad enables realtime, collaborative editing on WordPress content. Co-write and co-edit content, totally synchronously, and watch as the other people's text appears instantly on the screen.
+[Participad](http://participad.org) enables realtime, collaborative editing on WordPress content. Co-write and co-edit content, totally synchronously, and watch as the other people's text appears instantly on the screen.
 
 Powered by [Etherpad Lite](http://etherpad.org).  
 
@@ -25,6 +25,8 @@ Visit [http://participad.org/faqs/](http://participad.org/faqs/) for installatio
 == Frequently Asked Questions ==
 
 Visit [http://participad.org/faqs/](http://participad.org/faqs/) for FAQs.
+
+Take Participad for a test drive at the [Participad Demo site](http://participad.org/demo/).
 
 == Screenshots ==
 
