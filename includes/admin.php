@@ -69,9 +69,12 @@ function participad_admin_page() {
 			</tr>
 		</table>
 
-		<h3><?php _e( 'Modules', 'participad' ) ?></h3>
+		<?php if ( participad_is_installed_correctly() ) : ?>
+			<h3><?php _e( 'Modules', 'participad' ) ?></h3>
 
-		<p class="description"><?php _e( '<strong>Participad Modules</strong> are different ways of enabling your users to collaborate on WordPress content using Etherpad Lite.', 'participad' ) ?></p>
+			<p class="description"><?php _e( '<strong>Participad Modules</strong> are different ways of enabling your users to collaborate on WordPress content using Etherpad Lite.', 'participad' ) ?></p>
+
+		<?php endif ?>
 
 		<?php do_action( 'participad_admin_page' ) ?>
 
