@@ -1,0 +1,47 @@
+=== WP Super Cache ===
+Contributors: *waiting*
+Tags: etherpad, live, colaboration, lite
+Tested up to: 3.2
+Stable tag: *coming soon*
+Requires at least: 3.*
+
+Etherpad Lite integration for blogs.
+
+== Description ==
+
+= Recommended Settings =
+
+== Upgrade Notice ==
+
+== Changelog ==
+
+== 0.0.1 ==
+* Project initiated
+* Waiting code input
+
+== Installation ==
+1. Copy the files into your plugins forlder ...
+
+== How to uninstall WP Super Cache ==
+
+
+== Frequently Asked Questions ==
+
+= Does this really work? =
+
+Will do sometime soon.
+
+= Troubleshooting =
+
+== Self-Host ==
+
+It's complicated.
+
+
+== Links ==
+[ETHERPAD](http://etherpad.org).
+
+== Updates ==
+Updates to the plugin will be posted here, to [Robert Zimtea](http://robert.zinte.ie/) and the [EtherPad Foundation](http://etherpad.org)
+
+== Thanks ==
