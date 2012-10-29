@@ -4,7 +4,7 @@ Donate link: http://teleogistic.net/donate
 Tags: collaboration, collaborate, realtime, Google Docs, real time, synchronous, editor, Etherpad, Etherpad Lite, live
 Requires at least: 3.4
 Tested up to: 3.5
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -36,5 +36,11 @@ Take Participad for a test drive at the [Participad Demo site](http://participad
 
 == Changelog ==
 
+<<<<<<< HEAD
+=======
+= 1.0.1 = 
+* Fixed some problems in plugin header and in readme
+
+>>>>>>> master
 = 1.0 =
 * Initial release
