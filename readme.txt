@@ -5,8 +5,8 @@ Tags: collaboration, collaborate, realtime, Google Docs, real time, synchronous,
 Requires at least: 3.4
 Tested up to: 3.5
 Stable tag: 1.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License: GPLv3
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
 Realtime collaborative editing for WordPress content, powered by Etherpad Lite.
 
