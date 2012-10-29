@@ -16,7 +16,9 @@ Realtime collaborative editing for WordPress content, powered by Etherpad Lite.
 
 Powered by [Etherpad Lite](http://etherpad.org).  
 
-Visit [http://participad.org/features/](http://participad.org/features/) to learn more about Participad's features.
+Visit [http://participad.org/features/](http://participad.org/features/) to learn more about Participad's features, or watch the following video to see Participad in action.
+
+http://vimeo.com/52354978
 
 == Installation ==
 
