@@ -36,11 +36,8 @@ Take Participad for a test drive at the [Participad Demo site](http://participad
 
 == Changelog ==
 
-<<<<<<< HEAD
-=======
 = 1.0.1 = 
 * Fixed some problems in plugin header and in readme
 
->>>>>>> master
 = 1.0 =
 * Initial release
