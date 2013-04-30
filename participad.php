@@ -3,7 +3,7 @@
 Plugin Name: Participad
 Plugin URI: http://participad.org
 Description: Real time collaboration in WordPress, through integration with an Etherpad Lite installation
-Version: 1.0.1
+Version: 1.0.2
 Author: Boone B Gorges
 Author URI: http://boone.gorg.es
 */

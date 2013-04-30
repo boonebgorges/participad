@@ -226,7 +226,7 @@ abstract class Participad_Integration {
 				'showChat'     => 'false',
 				'showLineNumbers' => 'false',
 				'useMonospaceFont' => 'false',
-			), participad_api_endpoint() . '/p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
+			), participad_api_endpoint() . 'p/' . $this->ep_post_group_id . '%24' . $this->ep_post_id );
 		}
 	}
 

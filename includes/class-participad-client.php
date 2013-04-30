@@ -44,7 +44,7 @@ class Participad_Client extends EtherpadLiteClient {
 			$arguments
 		);
 
-		$url = $this->baseUrl . "/api/" . self::API_VERSION . "/" . $function . "?" . http_build_query( $query );
+		$url = $this->baseUrl . "api/" . self::API_VERSION . "/" . $function . "?" . http_build_query( $query );
 
 		$request = wp_remote_get( $url );
 
@@ -54,10 +54,14 @@ class Participad_Client extends EtherpadLiteClient {
 			throw $e;
 		}
 
+		if ( 200 !== $request['response']['code'] ) {
+			throw new UnexpectedValueException( "Unknown error: " . $request['response']['code'] );
+		}
+
 		$result = json_decode( $request['body'] );
 
 		if ( $result === null ) {
-			throw new UnexpectedValueException("JSON response could not be decoded");
+			throw new UnexpectedValueException( "JSON response could not be decoded" );
 		}
 
 		return $this->handleResult($result);

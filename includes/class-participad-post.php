@@ -115,7 +115,24 @@ class Participad_Post {
 				$ep_post         = participad_client()->createGroupPad( $ep_post_group_id, $ep_post_id, $wp_post_content );
 				$pad_created     = true;
 			} catch ( Exception $e ) {
-				$ep_post_id      = self::generate_random_name();
+
+				$error_message = $e->getMessage();
+				$error_code = substr( $error_message, strrpos( $error_message, ':' ) + 2 );
+
+				switch ( $error_code ) {
+
+					// Request URI too long
+					// @see https://github.com/boonebgorges/participad/issues/23
+					case '414' :
+						return new WP_Error( 'create_ep_post', __( 'Could not create the Etherpad Lite post', 'participad' ) );
+						break;
+
+					// Assume that there's a conflict, and try again
+					default :
+						$ep_post_id = self::generate_random_name();
+						break;
+
+				}
 			}
 		}
 
