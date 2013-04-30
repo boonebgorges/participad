@@ -36,6 +36,10 @@ Take Participad for a test drive at the [Participad Demo site](http://participad
 
 == Changelog ==
 
+= 1.0.2 =
+* Fixed problem that may have caused out-of-control loops when API calls resulted in 40x codes
+* Fixed bug that created malformed API endpoint URIs in some cases
+
 = 1.0.1 = 
 * Fixed some problems in plugin header and in readme
 
