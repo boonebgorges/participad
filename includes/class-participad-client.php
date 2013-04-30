@@ -44,7 +44,7 @@ class Participad_Client extends EtherpadLiteClient {
 			$arguments
 		);
 
-		$url = $this->baseUrl . "/api/" . self::API_VERSION . "/" . $function . "?" . http_build_query( $query );
+		$url = $this->baseUrl . "api/" . self::API_VERSION . "/" . $function . "?" . http_build_query( $query );
 
 		$request = wp_remote_get( $url );
 
