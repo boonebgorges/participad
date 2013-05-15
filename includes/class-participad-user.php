@@ -56,9 +56,10 @@ class Participad_User {
 		$this->ep_session_id = get_user_meta( $this->wp_user_id, $session_key, true );
 
 		if ( empty( $this->ep_session_id ) ) {
-			$this->ep_session_id = Participad_Post::create_ep_group_session( $ep_group_id, $this->ep_user_id );
+			$ep_session_id = Participad_Post::create_ep_group_session( $ep_group_id, $this->ep_user_id );
 
-			if ( ! is_wp_error( $this->ep_session_id ) ) {
+			if ( ! is_wp_error( $ep_session_id ) ) {
+                                $this->ep_session_id = $ep_session_id;
 				update_user_meta( $this->wp_user_id, $session_key, $this->ep_session_id );
 			}
 		}
