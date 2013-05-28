@@ -42,6 +42,7 @@ Take Participad for a test drive at the [Participad Demo site](http://participad
 * Block Dashboard edit access to Notepads for non-admins, to reduce confusion about their status
 * Added ability for Multisite admins to create a filter on default module settings
 * Improved handling of the way rewrite rules are flushed
+* Filters cookie domain, for better performance on subdirectory setups
 
 = 1.0.2 =
 * Fixed problem that may have caused out-of-control loops when API calls resulted in 40x codes

@@ -65,9 +65,13 @@ class Participad_User {
 		}
 
 		if ( ! empty( $this->ep_session_id ) ) {
-			// @todo This does not work across domains!
 			// @todo Better expiration?
-			setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60*24*365*100 ), "/" );
+
+			// It's not possible to set cross-domain cookies. But
+			// this filter will let you adjust for EP on a separate
+			// subdomain
+			$cookie_domain = apply_filters( 'participad_cookie_domain', '' );
+			setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60*24*365*100 ), '/', $cookie_domain );
 		}
 	}
 
