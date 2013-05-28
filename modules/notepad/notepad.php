@@ -73,7 +73,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 			'label' 	=> __( 'Notepads', 'participad' ),
 			'labels' 	=> $post_type_labels,
 			'public' 	=> true,
-			'show_ui' 	=> true, // @todo ?
+			'show_ui' 	=> current_user_can( 'manage_options' ),
 			'hierarchical' 	=> false,
 			'supports' 	=> array( 'title', 'editor', 'custom-fields' ),
 			'has_archive'   => true,
