@@ -52,7 +52,11 @@ function participad_api_endpoint() {
 		$api_endpoint = get_option( 'ep_api_endpoint' );
 	}
 
-	return trailingslashit( $api_endpoint );
+	if ( ! empty( $api_endpoint ) ) {
+		$api_endpoint = trailingslashit( $api_endpoint );
+	}
+
+	return $api_endpoint;
 }
 
 /**

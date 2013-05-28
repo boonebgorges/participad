@@ -36,6 +36,9 @@ Take Participad for a test drive at the [Participad Demo site](http://participad
 
 == Changelog ==
 
+= 1.0.3 =
+* Fixed bug that caused fatal errors on activation if no previous endpoint was defined
+
 = 1.0.2 =
 * Fixed problem that may have caused out-of-control loops when API calls resulted in 40x codes
 * Fixed bug that created malformed API endpoint URIs in some cases
