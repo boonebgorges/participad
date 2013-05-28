@@ -24,7 +24,7 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 			return;
 		}
 
-		if ( 'no' == get_option( 'participad_dashboard_enable' ) ) {
+		if ( 'no' === participad_is_module_enabled( 'dashboard' ) ) {
 			return;
 		}
 
@@ -187,10 +187,7 @@ class Participad_Integration_Dashboard extends Participad_Integration {
 	//////////////////
 
 	public function admin_page() {
-		$enabled = get_option( 'participad_dashboard_enable' );
-		if ( ! in_array( $enabled, array( 'yes', 'no' ) ) ) {
-			$enabled = 'yes';
-		}
+		$enabled = participad_is_module_enabled( 'dashboard' );
 
 		?>
 

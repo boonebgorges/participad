@@ -56,17 +56,22 @@ class Participad_User {
 		$this->ep_session_id = get_user_meta( $this->wp_user_id, $session_key, true );
 
 		if ( empty( $this->ep_session_id ) ) {
-			$this->ep_session_id = Participad_Post::create_ep_group_session( $ep_group_id, $this->ep_user_id );
+			$ep_session_id = Participad_Post::create_ep_group_session( $ep_group_id, $this->ep_user_id );
 
-			if ( ! is_wp_error( $this->ep_session_id ) ) {
+			if ( ! is_wp_error( $ep_session_id ) ) {
+                                $this->ep_session_id = $ep_session_id;
 				update_user_meta( $this->wp_user_id, $session_key, $this->ep_session_id );
 			}
 		}
 
 		if ( ! empty( $this->ep_session_id ) ) {
-			// @todo This does not work across domains!
 			// @todo Better expiration?
-			setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60*24*365*100 ), "/" );
+
+			// It's not possible to set cross-domain cookies. But
+			// this filter will let you adjust for EP on a separate
+			// subdomain
+			$cookie_domain = apply_filters( 'participad_cookie_domain', '' );
+			setcookie( "sessionID", $this->ep_session_id, time() + ( 60*60*24*365*100 ), '/', $cookie_domain );
 		}
 	}
 

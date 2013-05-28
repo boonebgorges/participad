@@ -4,7 +4,7 @@ Donate link: http://teleogistic.net/donate
 Tags: collaboration, collaborate, realtime, Google Docs, real time, synchronous, editor, Etherpad, Etherpad Lite, live
 Requires at least: 3.4
 Tested up to: 3.6
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -35,6 +35,14 @@ Take Participad for a test drive at the [Participad Demo site](http://participad
 1. Participad in action
 
 == Changelog ==
+
+= 1.0.3 =
+* Fixed bug that caused fatal errors on activation if no previous endpoint was defined
+* Added "(Participad)" to the beginning of Notepad widget names, for greater clarity
+* Block Dashboard edit access to Notepads for non-admins, to reduce confusion about their status
+* Added ability for Multisite admins to create a filter on default module settings
+* Improved handling of the way rewrite rules are flushed
+* Filters cookie domain, for better performance on subdirectory setups
 
 = 1.0.2 =
 * Fixed problem that may have caused out-of-control loops when API calls resulted in 40x codes

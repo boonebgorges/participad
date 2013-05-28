@@ -20,7 +20,7 @@ class Participad_Notepad_Create_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'participad_notepad_create',
-			__( 'Create A Notepad', 'participad' ),
+			__( '(Participad) Create A Notepad', 'participad' ),
 			array(
 				'description' => __( 'An easy interface for creating new Participad Notepads.', 'participad' )
 			)
@@ -88,7 +88,7 @@ class Participad_Notepad_Info_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'participad_notepad_Info',
-			__( 'Notepad Info', 'participad' ),
+			__( '(Participad) Notepad Info', 'participad' ),
 			array(
 				'description' => __( 'Displays Notepad info. When you\'re viewing a Notepad, shows info about associated posts. When you\'re viewing a post, shows info about associated notepads.', 'participad' )
 			)

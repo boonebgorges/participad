@@ -21,7 +21,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 			return;
 		}
 
-		if ( 'no' == get_option( 'participad_notepad_enable' ) ) {
+		if ( 'no' === participad_is_module_enabled( 'notepad' ) ) {
 			return;
 		}
 
@@ -73,7 +73,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 			'label' 	=> __( 'Notepads', 'participad' ),
 			'labels' 	=> $post_type_labels,
 			'public' 	=> true,
-			'show_ui' 	=> true, // @todo ?
+			'show_ui' 	=> current_user_can( 'manage_options' ),
 			'hierarchical' 	=> false,
 			'supports' 	=> array( 'title', 'editor', 'custom-fields' ),
 			'has_archive'   => true,
@@ -173,10 +173,7 @@ class Participad_Integration_Notepad extends Participad_Integration {
 	//////////////////
 
 	public function admin_page() {
-		$enabled = get_option( 'participad_notepad_enable' );
-		if ( ! in_array( $enabled, array( 'yes', 'no' ) ) ) {
-			$enabled = 'yes';
-		}
+		$enabled = participad_is_module_enabled( 'notepad' );
 
 		?>
 
