@@ -21,7 +21,7 @@ class Participad_Integration_Frontend extends Participad_Integration {
 			return;
 		}
 
-		if ( 'no' == get_option( 'participad_frontend_enable' ) ) {
+		if ( 'no' === participad_is_module_enabled( 'frontend' ) ) {
 			return;
 		}
 
@@ -149,10 +149,7 @@ class Participad_Integration_Frontend extends Participad_Integration {
 	}
 
 	public function admin_page() {
-		$enabled = get_option( 'participad_frontend_enable' );
-		if ( ! in_array( $enabled, array( 'yes', 'no' ) ) ) {
-			$enabled = 'yes';
-		}
+		$enabled = participad_is_module_enabled( 'frontend' );
 
 		?>
 

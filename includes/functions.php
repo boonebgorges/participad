@@ -78,3 +78,18 @@ function participad_is_installed_correctly() {
 
 	return $is_installed_correctly;
 }
+
+/**
+ * Determine whether a given module is enabled
+ *
+ * Note that this returns 'yes' or 'no', NOT a bool, for boring reasons
+ */
+function participad_is_module_enabled( $module_name = '' ) {
+	$setting = get_option( 'participad_' . $module_name . '_enable' );
+
+	if ( ! in_array( $setting, array( 'yes', 'no' ) ) ) {
+		$setting = apply_filters( 'participad_is_module_enabled_default', 'yes', $module_name );
+	}
+
+	return $setting;
+}
