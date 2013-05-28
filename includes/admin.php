@@ -204,7 +204,7 @@ function participad_flush_rewrite_rules() {
 	}
         $registered_rules = get_option( 'rewrite_rules' );
 
-        if ( ! in_array( $test_rule, $registered_rules ) ) {
+        if ( ! empty( $test_rule ) && ! in_array( $test_rule, (array) $registered_rules ) ) {
                 flush_rewrite_rules();
         }
 }
