@@ -285,7 +285,7 @@ function participad_notepad_post_has_notepad( $post_id = 0 ) {
 }
 
 /**
- * Builds the HTML for the Create A Notepad widget and shortcode
+ * Builds the HTML for the Create a Notepad widget and shortcode
  *
  * @param array $args See below for values
  * @return string $form The HTML form
