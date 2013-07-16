@@ -20,7 +20,7 @@ class Participad_Notepad_Create_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'participad_notepad_create',
-			__( '(Participad) Create A Notepad', 'participad' ),
+			__( '(Participad) Create a Notepad', 'participad' ),
 			array(
 				'description' => __( 'An easy interface for creating new Participad Notepads.', 'participad' )
 			)
@@ -28,7 +28,7 @@ class Participad_Notepad_Create_Widget extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$title = isset( $instance['title'] ) ? $instance['title'] : __( 'Create A Notepad', 'participad' );
+		$title = isset( $instance['title'] ) ? $instance['title'] : __( 'Create a Notepad', 'participad' );
 		$use_packaged_css = isset( $instance['use_packaged_css'] ) && 'no' == $instance['use_packaged_css'] ? 'no' : 'yes';
 
 		?>
