@@ -6,12 +6,23 @@
 
 /**
  * Adds the Participad settings menu
+ *
+ * @uses apply_filters() Filter participad_hide_admin_panel_from_site_admins
+ *   and return true if you don't want single site admins on a Multisite
+ *   installation to see the admin panel. Ie,
+ *     add_filter( 'participad_hide_admin_panel_from_site_admins', '__return_true' );
  */
 function participad_admin_menu() {
+	$cap = 'manage_options';
+
+	if ( is_multisite() && apply_filters( 'participad_hide_admin_panel_from_site_admins', false ) ) {
+		$cap = 'manage_network_options';
+	}
+
 	add_options_page(
 		__( 'Participad', 'participad' ),
 		__( 'Participad', 'participad' ),
-		'manage_options',
+		$cap,
 		'participad',
 		'participad_admin_page'
 	);
