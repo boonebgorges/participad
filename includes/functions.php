@@ -10,7 +10,7 @@
  * @since 1.0
  */
 function participad_client() {
-	return participad_Client::instance();
+	return Participad_Client::instance();
 }
 
 /**
