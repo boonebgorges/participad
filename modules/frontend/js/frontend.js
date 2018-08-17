@@ -1,9 +1,10 @@
 jQuery(document).ready( function($) {
-	var post_id = $('#participad-frontend-post-id').val(); 
-	var wpnonce = $('#participad-frontend-nonce').val(); 
+	var post_id = $('#participad-frontend-post-id').val();
+	var wpnonce = $('#participad-frontend-nonce').val();
 
-	$(window).bind('beforeunload', function() { 
+	$(window).bind('beforeunload', function() {
 		participad_frontend_save( post_id, wpnonce );
+		return true;
 	});
 
 	$('body').on('click', 'a', function(e) {
@@ -16,6 +17,11 @@ jQuery(document).ready( function($) {
 function participad_frontend_save( post_id, wpnonce, callback ) {
 	if ( ! callback ) {
 		callback = function() { return; }
+	}
+
+	if ( ! post_id ) {
+		callback();
+		return;
 	}
 
 	jQuery.ajax({
