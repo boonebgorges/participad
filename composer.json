@@ -1,0 +1,14 @@
+{
+    "name": "boonebgorges/participad",
+    "description": "Etherpad Lite integration for WordPress",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Boone Gorges",
+            "email": "boonebgorges@gmail.com"
+        }
+    ],
+    "require": {
+        "tomnomnom/etherpad-lite-client": "^0.1.2"
+    }
+}

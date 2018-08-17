@@ -48,6 +48,8 @@ class Participad {
 	 * Require necessary files
 	 */
 	function includes() {
+		require 'vendor/autoload.php';
+
 		require PARTICIPAD_PLUGIN_DIR . 'includes/functions.php';
 		require PARTICIPAD_PLUGIN_DIR . 'includes/class-participad-integration.php';
 		require PARTICIPAD_PLUGIN_DIR . 'includes/class-participad-user.php';

@@ -1,0 +1,49 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "9c697570c5af8971b297345afb1f0220",
+    "packages": [
+        {
+            "name": "tomnomnom/etherpad-lite-client",
+            "version": "0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/TomNomNom/etherpad-lite-client.git",
+                "reference": "932ac4903d7982038d5d04c03f8f9c809a5356bd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/TomNomNom/etherpad-lite-client/zipball/932ac4903d7982038d5d04c03f8f9c809a5356bd",
+                "reference": "932ac4903d7982038d5d04c03f8f9c809a5356bd",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EtherpadLite\\": "EtherpadLite/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache"
+            ],
+            "description": "Etherpad Lite client for PHP",
+            "homepage": "https://github.com/TomNomNom/etherpad-lite-client/",
+            "time": "2016-02-09T14:27:44+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}

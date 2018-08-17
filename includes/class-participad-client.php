@@ -1,8 +1,6 @@
 <?php
 
-if ( ! class_exists( 'EtherpadLiteClient' ) ) {
-	require PARTICIPAD_PLUGIN_DIR . 'lib/etherpad-lite-client.php';
-}
+use \EtherpadLite\Client;
 
 /**
  * Participad Etherpad client
@@ -12,7 +10,7 @@ if ( ! class_exists( 'EtherpadLiteClient' ) ) {
  *
  * @since 1.0
  */
-class Participad_Client extends EtherpadLiteClient {
+class Participad_Client extends Client {
 	protected static $instance;
 
 	protected static $connected = false;
