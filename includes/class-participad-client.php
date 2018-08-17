@@ -13,7 +13,7 @@ use \EtherpadLite\Client;
 class Participad_Client extends Client {
 	protected static $instance;
 
-	protected static $connected = false;
+	protected $connected = false;
 
 	/**
 	 * Ensures that we've got a singleton
