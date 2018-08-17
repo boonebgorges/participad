@@ -3,8 +3,7 @@ jQuery(document).ready( function($) {
 	var wpnonce = $('#participad-frontend-nonce').val();
 
 	$(window).bind('beforeunload', function() {
-		participad_frontend_save( post_id, wpnonce );
-		return true;
+		return participad_frontend_save( post_id, wpnonce );
 	});
 
 	$('body').on('click', 'a', function(e) {
@@ -16,7 +15,7 @@ jQuery(document).ready( function($) {
 
 function participad_frontend_save( post_id, wpnonce, callback ) {
 	if ( ! callback ) {
-		callback = function() { return; }
+		callback = function() { return true; }
 	}
 
 	if ( ! post_id ) {
